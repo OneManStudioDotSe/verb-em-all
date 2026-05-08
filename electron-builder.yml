@@ -1,0 +1,37 @@
+appId: com.sotiris.verbemall
+productName: "Verb 'em all"
+copyright: Copyright © 2026
+
+directories:
+  buildResources: resources
+  output: dist-release
+
+files:
+  - "out/**/*"
+
+mac:
+  category: public.app-category.education
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  icon: resources/icon.png
+  entitlementsInherit: build/entitlements.mac.plist
+
+dmg:
+  title: "Verb 'em all"
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: resources/icon.ico
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  installerIcon: resources/icon.ico
+  uninstallerIcon: resources/icon.ico

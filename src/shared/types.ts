@@ -1,0 +1,49 @@
+export type WordCategory =
+  | 'motion'
+  | 'speech'
+  | 'cognition'
+  | 'destruction'
+  | 'creation'
+  | 'social'
+  | 'archaic'
+  | 'technical'
+  | 'cooking'
+
+export interface WordItem {
+  id: string
+  word: string
+  emoji: string
+  description: string
+  category: WordCategory
+  imagePath?: string
+}
+
+export interface CatchEvent {
+  caughtAt: string // ISO 8601
+  note: string
+}
+
+export interface CaughtRecord {
+  wordId: string
+  catchCount: number
+  history: CatchEvent[]
+}
+
+export interface VerbagotchiData {
+  criticalSince: string | null // ISO 8601 timestamp when health entered critical, or null
+}
+
+export interface StorageSchema {
+  caught: Record<string, CaughtRecord>
+  monitoringEnabled: boolean
+  verbagotchi: VerbagotchiData
+  accentColor: string
+  theme: string
+}
+
+export interface WordViewModel extends WordItem {
+  isCaught: boolean
+  catchCount: number
+  latestCatchDate?: string
+  history: CatchEvent[]
+}

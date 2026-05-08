@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(printf 'y\\\\nverb-em-all\\\\n')",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(npm outdated:*)",
+      "Bash(npm info:*)",
+      "Bash(python3 -c \"import json,sys; vs=[v for v in json.load\\(sys.stdin\\) if not v.startswith\\('0'\\)]; print\\(vs[-5:]\\)\")",
+      "Bash(wait)",
+      "Bash(npm list:*)",
+      "Bash(jobs -l)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(grep -l \"thinking\" ~/.claude/projects/-Users-sotiris-Documents-Repos-Mine-verb-em-all/*.jsonl)",
+      "Bash(identify assets/net.png)",
+      "Bash(sips -g all assets/net.png)",
+      "Bash(sips -m \"/System/Library/ColorSync/Profiles/Generic Gray Profile.icc\" resources/icon.png --out resources/tray-icon.png)",
+      "Bash(sips -g all resources/tray-icon.png)",
+      "Bash(python3 -c \"from PIL import Image; print\\('PIL ok'\\)\")",
+      "Bash(convert --version)",
+      "Bash(python3:*)",
+      "Bash(sips --resampleHeightWidth 410 410 resources/icon.png --out /tmp/icon-small.png)",
+      "Bash(sips --padToHeightWidth 512 512 --padColor 00000000 /tmp/icon-small.png --out resources/icon.png)",
+      "Bash(sips -g pixelWidth -g pixelHeight -g hasAlpha resources/icon.png)"
+    ]
+  }
+}
