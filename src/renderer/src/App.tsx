@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import type { WordViewModel } from '../../shared/types'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import type { WordViewModel, ClaudeStatus } from '../../shared/types'
 import { WORDS } from './data/words'
 import { findAccentEntry } from './data/palette'
 import { useStorage } from './hooks/useStorage'
@@ -21,6 +21,9 @@ import { AboutModal } from './components/modals/AboutModal'
 import { StatsModal } from './components/modals/StatsModal'
 import { ShareCardModal } from './components/modals/ShareCardModal'
 import { ColorPickerModal } from './components/modals/ColorPickerModal'
+import { ClaudeHelpModal } from './components/modals/ClaudeHelpModal'
+
+const CLAUDE_STATUS_INTERVAL_MS = 30_000
 
 function sortWords(words: WordViewModel[], config: SortConfig): WordViewModel[] {
   return [...words].sort((a, b) => {
@@ -57,6 +60,10 @@ export default function App(): React.JSX.Element {
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [accentColor, setAccentColor] = useState('#f5e642')
   const [theme, setTheme] = useState('dark')
+  const [hideDock, setHideDock] = useState(false)
+  const [claudeStatus, setClaudeStatus] = useState<ClaudeStatus | null>(null)
+  const [showClaudeHelp, setShowClaudeHelp] = useState(false)
+  const isMac = window.electronAPI.platform === 'darwin'
 
   // Monitoring
   const [monitoringEnabled, setMonitoringEnabled] = useState(false)
@@ -88,6 +95,22 @@ export default function App(): React.JSX.Element {
     window.electronAPI.isMonitoringEnabled().then(setMonitoringEnabled)
   }, [])
 
+  // Dock visibility (macOS)
+  useEffect(() => {
+    window.electronAPI.getHideDock().then(setHideDock)
+  }, [])
+
+  // Can we see Claude Code transcripts? Re-check periodically.
+  const refreshClaudeStatus = useCallback(() => {
+    window.electronAPI.getClaudeStatus().then(setClaudeStatus)
+  }, [])
+
+  useEffect(() => {
+    refreshClaudeStatus()
+    const id = setInterval(refreshClaudeStatus, CLAUDE_STATUS_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [refreshClaudeStatus])
+
   // Listen for words detected by the session/clipboard watcher
   useEffect(() => {
     window.electronAPI.onWordsDetected((ids) => {
@@ -113,6 +136,11 @@ export default function App(): React.JSX.Element {
     const next = await window.electronAPI.setMonitoringEnabled(!monitoringEnabled)
     setMonitoringEnabled(next)
     if (!next) setDetectedIds([]) // clear panel when disabling
+  }
+
+  async function handleHideDockToggle(): Promise<void> {
+    const next = await window.electronAPI.setHideDock(!hideDock)
+    setHideDock(next)
   }
 
   function handleThemeToggle(): void {
@@ -213,13 +241,29 @@ export default function App(): React.JSX.Element {
           <span className="app-catch-progress">
             {caughtWords.length}/{WORDS.length} caught
           </span>
-          <button
-            className={`monitor-toggle${monitoringEnabled ? ' active' : ''}`}
-            onClick={toggleMonitoring}
-            title={monitoringEnabled ? 'Monitoring active — click to disable' : 'Enable Claude session monitoring'}
-          >
-            {monitoringEnabled ? '◉' : '○'}
-          </button>
+          <div className="monitor-group">
+            <button
+              className={`monitor-toggle${monitoringEnabled ? ' active' : ''}`}
+              onClick={toggleMonitoring}
+              title={monitoringEnabled ? 'Monitoring active — click to disable' : 'Enable Claude session monitoring'}
+            >
+              {monitoringEnabled ? '◉' : '○'}
+            </button>
+            <button
+              className={`claude-indicator${claudeStatus?.found ? ' found' : ' missing'}`}
+              onClick={() => setShowClaudeHelp(true)}
+              title={
+                claudeStatus === null
+                  ? 'Checking for Claude Code…'
+                  : claudeStatus.found
+                    ? 'Claude Code transcripts found — sessions can be monitored'
+                    : 'Claude Code not detected — click for help'
+              }
+            >
+              <span className="claude-indicator-dot" />
+              claude
+            </button>
+          </div>
           <button
             className={`sound-toggle${soundEngine.enabled ? ' active' : ''}`}
             onClick={soundEngine.toggle}
@@ -235,6 +279,8 @@ export default function App(): React.JSX.Element {
             onShowColorPicker={() => setShowColorPicker(true)}
             onToggleTheme={handleThemeToggle}
             currentTheme={theme}
+            hideDock={hideDock}
+            onToggleHideDock={isMac ? handleHideDockToggle : undefined}
           />
         </div>
       </header>
@@ -243,7 +289,11 @@ export default function App(): React.JSX.Element {
         <div className="app-content">
           <div className="app-top-row">
             <div className="app-top-left">
-              {!isConstellation && <SearchBox value={searchQuery} onChange={setSearchQuery} />}
+              <div className={`search-collapse${isConstellation ? ' search-collapse--hidden' : ''}`}>
+                <div>
+                  <SearchBox value={searchQuery} onChange={setSearchQuery} />
+                </div>
+              </div>
               <TabBar
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
@@ -328,6 +378,13 @@ export default function App(): React.JSX.Element {
           currentColor={accentColor}
           onSelect={handleAccentColorSelect}
           onClose={() => setShowColorPicker(false)}
+        />
+      )}
+      {showClaudeHelp && claudeStatus && (
+        <ClaudeHelpModal
+          status={claudeStatus}
+          onRecheck={refreshClaudeStatus}
+          onClose={() => setShowClaudeHelp(false)}
         />
       )}
     </div>
