@@ -13,10 +13,8 @@ const CATEGORY_COLORS: Record<WordCategory, string> = {
   motion:      'var(--accent-y)',
   speech:      'var(--accent-c)',
   cognition:   '#b042f5',
-  destruction: '#f54242',
   creation:    'var(--accent-g)',
   social:      '#f5a742',
-  archaic:     '#888888',
   technical:   'var(--accent-m)',
   cooking:     '#42c5f5'
 }

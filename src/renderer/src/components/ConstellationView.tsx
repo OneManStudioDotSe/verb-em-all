@@ -19,17 +19,14 @@ const ZONES: Record<string, Zone> = {
   speech:      { cx: 100, cy: 350, spread: 72,  name: 'THE SPEAKERS',   color: '#f542d4' },
   technical:   { cx: 500, cy: 345, spread: 110, name: 'THE BUILDERS',   color: '#f5e642' },
   social:      { cx: 900, cy: 350, spread: 72,  name: 'THE CONNECTORS', color: '#00f5d4' },
-  archaic:     { cx: 210, cy: 572, spread: 65,  name: 'THE ANCIENTS',   color: '#aaaaaa' },
-  cooking:     { cx: 500, cy: 578, spread: 65,  name: 'THE ALCHEMISTS', color: '#f59e42' },
-  destruction: { cx: 790, cy: 572, spread: 65,  name: 'THE DESTROYERS', color: '#ff5555' },
+  cooking:     { cx: 500, cy: 578, spread: 80,  name: 'THE ALCHEMISTS', color: '#f59e42' },
 }
 
 // Outer-ring creature wander path through all peripheral constellation zones
 const CREATURE_PATH =
   'M 140,135 C 300,55 430,65 500,95 C 610,130 760,100 860,135 ' +
-  'C 952,198 964,310 900,350 C 876,444 848,538 790,572 ' +
-  'C 688,607 594,608 500,578 C 396,548 280,563 210,572 ' +
-  'C 118,572 48,458 100,350 C 122,274 128,203 140,135 Z'
+  'C 952,198 964,310 900,350 C 840,470 700,590 500,578 ' +
+  'C 300,590 160,470 100,350 C 122,274 128,203 140,135 Z'
 
 function makeRng(seed: string): () => number {
   let h = 5381

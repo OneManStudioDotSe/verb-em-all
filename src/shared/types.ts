@@ -2,10 +2,8 @@ export type WordCategory =
   | 'motion'
   | 'speech'
   | 'cognition'
-  | 'destruction'
   | 'creation'
   | 'social'
-  | 'archaic'
   | 'technical'
   | 'cooking'
 

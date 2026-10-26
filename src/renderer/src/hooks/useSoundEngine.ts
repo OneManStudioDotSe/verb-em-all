@@ -21,9 +21,7 @@ const CAT_SCALES: Record<string, number[]> = {
   speech:      [1, 1.067, 1.2,    1.333, 1.422, 1.6,   2     ], // Phrygian
   technical:   [1, 2,     4,      8,     3,     6,     16    ], // pure integer harmonics
   social:      [1, 1.25,  1.5,    2,     2.5,   3,     4     ], // overtone series
-  archaic:     [1, 1.053, 1.185,  1.333, 1.5,   1.6,   2     ], // Dorian
   cooking:     [1, 1.122, 1.26,   1.498, 1.682, 1.888, 2     ], // whole tone
-  destruction: [1, 1.059, 1.414,  1.498, 1.587, 1.888, 2     ], // tritone-heavy
 }
 
 // Category waveform for arpeggio notes (affects timbre character)
@@ -34,9 +32,7 @@ const CAT_WAVEFORMS: Record<string, OscillatorType> = {
   speech:      'sine',
   technical:   'square',
   social:      'sine',
-  archaic:     'sine',
   cooking:     'triangle',
-  destruction: 'sawtooth',
 }
 
 // Arpeggio direction: 1 = ascending, -1 = descending, 0 = alternating
@@ -47,9 +43,7 @@ const CAT_ARP_DIR: Record<string, number> = {
   speech:      0,
   technical:   1,
   social:      1,
-  archaic:    -1,
   cooking:     0,
-  destruction:-1,
 }
 
 // Reverb send amount (0 = dry, 1 = full wet)
@@ -60,9 +54,7 @@ const CAT_REVERB: Record<string, number> = {
   speech:      0.55,
   technical:   0.08,
   social:      0.48,
-  archaic:     0.88,
   cooking:     0.38,
-  destruction: 0.12,
 }
 
 // ─── UTILITIES ────────────────────────────────────────────────────────────────
@@ -309,11 +301,11 @@ export function useSoundEngine(): SoundEngine {
           charToRatio(wordCharsAll[i % wordCharsAll.length] ?? 'a', scale)
         )
 
-        const needsDist = word.category === 'destruction' || word.category === 'technical'
+        const needsDist = word.category === 'technical'
         let distNode: WaveShaperNode | null = null
         if (needsDist) {
           distNode = ctx.createWaveShaper()
-          distNode.curve = buildDistCurve(word.category === 'destruction' ? 0.65 : 0.28)
+          distNode.curve = buildDistCurve(0.28)
           distNode.oversample = '4x'
           distNode.connect(dry)
         }
@@ -599,23 +591,6 @@ export function useSoundEngine(): SoundEngine {
             break
           }
 
-          case 'archaic': {
-            // Ultra-slow beating (0.4 Hz): an ancient, barely-alive drone
-            const filt = ctx.createBiquadFilter()
-            filt.type = 'lowpass'
-            filt.frequency.value = 280
-            ;[80, 80.4].forEach((f) => {
-              const o = ctx.createOscillator()
-              const g = ctx.createGain()
-              o.type = 'sine'
-              o.frequency.value = f
-              g.gain.value = 0.042
-              o.connect(g); g.connect(filt); filt.connect(bus)
-              o.start(); oscs.push(o)
-            })
-            break
-          }
-
           case 'cooking': {
             // Bandpass-filtered noise modulated at 2.5 Hz → bubbling steam
             const noiseLen = ctx.sampleRate * 2
@@ -636,24 +611,6 @@ export function useSoundEngine(): SoundEngine {
             ns.start(); oscs.push(ns)
             // Soft low sine underneath
             addOsc('sine', 110, 0.014)
-            break
-          }
-
-          case 'destruction': {
-            // Tritone sawtooth pair through distortion — unresolved, tense
-            const dist = ctx.createWaveShaper()
-            dist.curve = buildDistCurve(0.38)
-            dist.oversample = '4x'
-            dist.connect(bus)
-            ;([100, 141.4] as const).forEach((f) => {
-              const o = ctx.createOscillator()
-              const g = ctx.createGain()
-              o.type = 'sawtooth'
-              o.frequency.value = f
-              g.gain.value = 0.024
-              o.connect(g); g.connect(dist)
-              o.start(); oscs.push(o)
-            })
             break
           }
         }

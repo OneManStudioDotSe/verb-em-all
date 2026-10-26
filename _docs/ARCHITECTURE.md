@@ -200,9 +200,10 @@ StorageSchema   // { caught, monitoringEnabled, verbagotchi, accentColor, theme 
 WordViewModel   // WordItem + isCaught, catchCount, latestCatchDate, history
 ```
 
-`WordCategory` lists nine categories; the current word list uses seven (`motion`,
-`cognition`, `creation`, `technical`, `social`, `cooking`, `speech`). `archaic` and
-`destruction` are defined, have constellation zones and sound scales, but contain no words yet.
+`WordCategory` has seven values: `motion`, `cognition`, `creation`, `technical`, `social`,
+`cooking`, `speech`. Adding a category means adding a word, a constellation zone in
+`ConstellationView.tsx`, a scale/waveform/ambient case in `useSoundEngine.ts` and a colour in
+`StatsModal.tsx`; the `Record<WordCategory, …>` maps make the compiler point at each spot.
 
 ---
 

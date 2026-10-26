@@ -12,7 +12,7 @@ Brainstormed during Session 1 (2026-04-01). These are creative, bold, and someti
 A Tamagotchi-style digital creature that lives in the app. It grows and evolves as you catch verbs, and gets hungry over time if you neglect it. If left in critical condition for >24h, it escapes by randomly uncatching one of your collected words. Stages: Hatchling → Verblet → Verbion → Verbzilla.
 
 ### Verb Familiar
-Give the creature a name and personality. Different name choices unlock different ASCII art variants (gothic, pixel, alien). The creature reacts to the types of verbs you catch — catch many "destruction" verbs and it grows spikes; catch "speech" verbs and it sprouts a speech bubble.
+Give the creature a name and personality. Different name choices unlock different ASCII art variants (gothic, pixel, alien). The creature reacts to the types of verbs you catch — catch many "technical" verbs and it grows antennae; catch "speech" verbs and it sprouts a speech bubble.
 
 ### Mood Contagion
 The creature's mood affects the app's color scheme. Happy creature = warm yellows. Sick creature = desaturated palette. Critical creature = everything pulses red.
