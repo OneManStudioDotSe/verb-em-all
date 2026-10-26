@@ -4,8 +4,8 @@
 
 A Pokémon-style desktop app for collecting unusual verbs you meet while coding. Browse 193
 hand-picked verbs, catch them with a note, and watch your Verbagotchi creature grow. Optional
-auto-detection reads your Claude Code session transcripts, clipboard and (with a one-line shell
-function) the spinner verbs Claude Code shows in your terminal, so verbs find you.
+auto-detection reads your Claude Code session transcripts, clipboard and (with one click to add
+a shell function) the spinner verbs Claude Code shows in your terminal, so verbs find you.
 Everything stays on your machine: no account, no network, no telemetry.
 
 ---
@@ -57,7 +57,7 @@ npm run package:mac  # or build your own DMG into dist-release/
 | **Live search & sort** | Filter by name, definition or category; sort by title, category or catch count |
 | **Celebration** | Full-screen confetti on every catch |
 | **Auto-detection** | Watches `~/.claude/projects/**/*.jsonl` and the clipboard (every 2 s) for matching verbs |
-| **Spinner verbs** | Catches the verbs Claude Code shows while it works ("Discombobulating…") in iTerm, Terminal or VS Code. They are never written to transcripts, so a `claude` shell function (copy it from the Claude indicator's help) runs sessions through a small `expect` recorder |
+| **Spinner verbs** | Catches the verbs Claude Code shows while it works ("Discombobulating…") in iTerm, Terminal or VS Code. They are never written to transcripts, so with your consent the app adds a `claude` function to `~/.zshrc` (and `~/.bashrc`) that runs sessions through a small `expect` recorder. Remove it with one click from the Claude indicator |
 | **Detection panel** | Spotted verbs appear above the list for one-click catching, catch-all or dismiss. Verbs you already have get an outlined **↻ Again** button and their own **Catch all again** |
 | **Verbagotchi** | ASCII creature with four evolution stages. Health drains over seven days without a catch; after 24 h in critical condition it escapes with one of your verbs |
 | **Timeline** | Day-grouped diary of every catch and note, searchable |
@@ -88,11 +88,13 @@ Catches are stored in a single local JSON file:
 
 Auto-detection is off by default. When you turn it on (the `○` button in the header) the app
 reads newly appended lines of your Claude Code transcripts and polls the clipboard, matches
-them against the verb list locally, and discards the text. If you add the spinner-verb shell
-function, each interactive `claude` session's screen output is appended to
-`~/.verb-em-all/tty/<pid>.log` while monitoring is on; the app reads and empties it every second
-and deletes it (with the recorder script) when monitoring stops or the app quits. Nothing is
-sent anywhere. Fonts are
+them against the verb list locally, and discards the text. The first time you turn it on, the
+app asks before adding the spinner-verb `claude` function to your shell profile (a block marked
+`# >>> verb-em-all >>>`, removable from the Claude indicator). With it, each interactive `claude`
+session's screen output is appended to `~/.verb-em-all/tty/<pid>.log` while monitoring is on;
+the app reads and empties it every second and deletes it (with the recorder script) when
+monitoring stops or the app quits, and open sessions pause recording until it is back. Nothing
+is sent anywhere. Fonts are
 bundled, so the app never contacts a CDN.
 
 ---

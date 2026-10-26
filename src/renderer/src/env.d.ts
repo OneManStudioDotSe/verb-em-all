@@ -17,6 +17,7 @@ declare global {
       setMonitoringEnabled: (enabled: boolean) => Promise<boolean>
       onWordsDetected: (callback: (wordIds: string[]) => void) => void
       getClaudeStatus: () => Promise<ClaudeStatus>
+      setShellHook: (enabled: boolean) => Promise<boolean>
       getVerbagotchiData: () => Promise<VerbagotchiData>
       saveVerbagotchiCriticalSince: (ts: string | null) => Promise<void>
       getAccentColor: () => Promise<string>

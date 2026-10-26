@@ -40,6 +40,8 @@ const electronAPI = {
     ipcRenderer.on('words:detected', (_event, ids) => callback(ids))
   },
   getClaudeStatus: (): Promise<ClaudeStatus> => ipcRenderer.invoke('monitor:getClaudeStatus'),
+  setShellHook: (enabled: boolean): Promise<boolean> =>
+    ipcRenderer.invoke('monitor:setShellHook', enabled),
 
   // Verbagotchi
   getVerbagotchiData: (): Promise<VerbagotchiData> => ipcRenderer.invoke('verbagotchi:getData'),

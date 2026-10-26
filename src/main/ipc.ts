@@ -1,7 +1,7 @@
 import { ipcMain, app, BrowserWindow } from 'electron'
 import { store, catchWordInStore, uncatchWordInStore, getVerbagotchiData, saveVerbagotchiCriticalSince, getAccentColor, setAccentColor, getTheme, setTheme, getHideDock, setHideDock } from './store'
 import { rebuildTrayMenu } from './tray'
-import { startMonitoring, stopMonitoring, clearDetectedWord, getClaudeStatus } from './watcher'
+import { startMonitoring, stopMonitoring, clearDetectedWord, getClaudeStatus, setShellHook } from './watcher'
 
 /** macOS only: hide the dock icon so the app lives in the menu bar. */
 export function applyDockVisibility(hide: boolean): void {
@@ -84,5 +84,9 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('monitor:getClaudeStatus', () => {
     return getClaudeStatus()
+  })
+
+  ipcMain.handle('monitor:setShellHook', (_event, enabled: boolean) => {
+    return setShellHook(enabled)
   })
 }

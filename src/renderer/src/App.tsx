@@ -22,6 +22,7 @@ import { StatsModal } from './components/modals/StatsModal'
 import { ShareCardModal } from './components/modals/ShareCardModal'
 import { ColorPickerModal } from './components/modals/ColorPickerModal'
 import { ClaudeHelpModal } from './components/modals/ClaudeHelpModal'
+import { ShellHookModal } from './components/modals/ShellHookModal'
 
 const CLAUDE_STATUS_INTERVAL_MS = 30_000
 
@@ -63,6 +64,7 @@ export default function App(): React.JSX.Element {
   const [hideDock, setHideDock] = useState(false)
   const [claudeStatus, setClaudeStatus] = useState<ClaudeStatus | null>(null)
   const [showClaudeHelp, setShowClaudeHelp] = useState(false)
+  const [showShellHook, setShowShellHook] = useState(false)
   const isMac = window.electronAPI.platform === 'darwin'
 
   // Monitoring
@@ -136,6 +138,14 @@ export default function App(): React.JSX.Element {
     const next = await window.electronAPI.setMonitoringEnabled(!monitoringEnabled)
     setMonitoringEnabled(next)
     if (!next) setDetectedIds([]) // clear panel when disabling
+    // Offer the spinner-verb recorder whenever monitoring is turned on without it
+    if (next && isMac && claudeStatus && !claudeStatus.shellHook) setShowShellHook(true)
+  }
+
+  async function handleSetShellHook(enabled: boolean): Promise<boolean> {
+    const installed = await window.electronAPI.setShellHook(enabled)
+    refreshClaudeStatus()
+    return installed === enabled
   }
 
   async function handleHideDockToggle(): Promise<void> {
@@ -383,7 +393,14 @@ export default function App(): React.JSX.Element {
         <ClaudeHelpModal
           status={claudeStatus}
           onRecheck={refreshClaudeStatus}
+          onSetShellHook={handleSetShellHook}
           onClose={() => setShowClaudeHelp(false)}
+        />
+      )}
+      {showShellHook && (
+        <ShellHookModal
+          onEnable={() => handleSetShellHook(true)}
+          onClose={() => setShowShellHook(false)}
         />
       )}
     </div>

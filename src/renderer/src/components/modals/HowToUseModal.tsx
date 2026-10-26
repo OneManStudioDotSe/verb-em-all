@@ -79,8 +79,8 @@ export function HowToUseModal({ onClose }: HowToUseModalProps): React.JSX.Elemen
             transcripts and clipboard. Matching verbs show up in a panel above the list for one-click
             catching. Everything is read locally; nothing leaves your computer. The{' '}
             <strong style={C}>claude</strong> pill next to it is green when transcripts are found;
-            click it for help if it is red, or to set up catching the spinner verbs Claude Code
-            shows in your terminal.
+            click it for help if it is red, or to add or remove the shell function that catches
+            the spinner verbs Claude Code shows in your terminal.
           </p>
         </div>
 

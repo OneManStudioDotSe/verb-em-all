@@ -74,7 +74,8 @@ verb-em-all/
 │   ├── preload/
 │   │   └── index.ts          # contextBridge → window.electronAPI
 │   ├── shared/
-│   │   └── types.ts          # Interfaces used by both main and renderer
+│   │   ├── types.ts          # Interfaces used by both main and renderer
+│   │   └── shellhook.ts      # `claude` recorder function + add/remove for shell profiles
 │   └── renderer/
 │       ├── index.html
 │       └── src/
@@ -111,6 +112,7 @@ verb-em-all/
 │                   ├── ColorPickerModal.tsx
 │                   ├── HowToUseModal.tsx
 │                   ├── ShareCardModal.tsx    # Canvas-rendered PNG
+│                   ├── ShellHookModal.tsx    # Consent to add the spinner-verb shell function
 │                   └── StatsModal.tsx
 ├── resources/
 │   ├── icon.png                  # 512×512 app icon (macOS icns is generated from it)
@@ -173,16 +175,24 @@ Monitoring enabled (header ○ button)
 ```
 
 Spinner verbs ("Whirring…") are only drawn in the terminal, never written to transcripts. The
-user opts in with a `claude` shell function (shown in `ClaudeHelpModal`) that runs interactive
-sessions through `expect -f ~/.verb-em-all/record.exp claude …` when the script exists. The
-script relays the session through a pseudo-terminal, forwards window resizes (macOS `script`
-does not, which garbles the TUI) and appends the output to `tty/<pid>.log`, deleting it on exit.
-Logs are opened in append mode, so the app can truncate them mid-session. `stopMonitoring()`
-(also called on quit) deletes the script and the `tty/` folder, so new sessions run unrecorded.
+user opts in to a `claude` shell function (`SHELL_HOOK` in `src/shared/shellhook.ts`) that runs
+interactive sessions through `expect -f ~/.verb-em-all/record.exp claude …` when the script
+exists. Turning monitoring on without it opens `ShellHookModal`; on consent,
+`monitor:setShellHook` → `setShellHook()` appends the block (between `# >>> verb-em-all >>>`
+markers) to `~/.zshrc` and `~/.bashrc` (whichever exist; `~/.zshrc` if neither), and removes
+exactly that block when turned off from `ClaudeHelpModal`. macOS only (`/usr/bin/expect`).
+The script relays the session through a pseudo-terminal, forwards window resizes (macOS
+`script` does not, which garbles the TUI) and appends the output to `tty/<pid>.log`, deleting
+it on exit. Logs are opened in append mode, so the app can truncate them mid-session.
+`stopMonitoring()` (also called on quit) deletes the script and the `tty/` folder. Each
+recorder checks every second whether the script still exists: it stops logging when it is
+gone and reopens its log when it is back, so sessions left open across app restarts keep
+being caught and nothing is recorded while the app is off.
 
 The header's **Claude indicator** calls `monitor:getClaudeStatus` on load and every 30 s. It
 scans `~/.claude/projects/*/` for `.jsonl` transcripts (stops at 50) and shows green when any
-exist; red opens `ClaudeHelpModal` with setup instructions and a re-check button.
+exist; red opens `ClaudeHelpModal` with setup instructions and a re-check button. The modal
+also adds or removes the spinner-verb shell function.
 
 ### Verbagotchi
 
@@ -212,7 +222,7 @@ CatchEvent      // { caughtAt: ISO8601, note: string }
 CaughtRecord    // { wordId, catchCount, history: CatchEvent[] }
 VerbagotchiData // { criticalSince: string | null }
 StorageSchema   // { caught, monitoringEnabled, verbagotchi, accentColor, theme, hideDock }
-ClaudeStatus    // { found, transcripts, dir, recording } — ~/.claude/projects scan + recorded terminal sessions
+ClaudeStatus    // { found, transcripts, dir, recording, shellHook } — ~/.claude/projects scan, recorded terminal sessions, shell function installed
 WordViewModel   // WordItem + isCaught, catchCount, latestCatchDate, history
 ```
 
@@ -237,7 +247,8 @@ WordViewModel   // WordItem + isCaught, catchCount, latestCatchDate, history
 | `settings:getAccentColor` / `settings:setAccentColor` | renderer → main | `string` / `void` |
 | `settings:getTheme` / `settings:setTheme` | renderer → main | `string` / `void` |
 | `settings:getHideDock` / `settings:setHideDock` | renderer → main | `boolean` (macOS: hides/shows the Dock icon) |
-| `monitor:getClaudeStatus` | renderer → main | `ClaudeStatus` (`found`, `transcripts`, `dir`, `recording`) |
+| `monitor:getClaudeStatus` | renderer → main | `ClaudeStatus` (`found`, `transcripts`, `dir`, `recording`, `shellHook`) |
+| `monitor:setShellHook` | renderer → main | `boolean` (adds/removes the `claude` function in shell profiles; returns whether it is installed) |
 | `menu:showHowToUse`, `menu:showAbout` | main → renderer | — |
 | `verb:caught-from-tray` | main → renderer | `wordId, CaughtRecord` |
 | `words:detected` | main → renderer | `string[]` (word IDs) |

@@ -7,6 +7,7 @@ import {
 } from 'fs'
 import chokidar, { type FSWatcher } from 'chokidar'
 import { detectWords, detectSpinnerVerbs, extractTextFromJsonlLine } from './detector'
+import { hasShellHook, addShellHook, removeShellHook } from '../shared/shellhook'
 import type { ClaudeStatus } from '../shared/types'
 
 const CLAUDE_PROJECTS_DIR = join(homedir(), '.claude', 'projects')
@@ -15,24 +16,43 @@ const RECORDER_DIR = join(homedir(), '.verb-em-all')
 const RECORDER_PATH = join(RECORDER_DIR, 'record.exp')
 const TTY_DIR = join(RECORDER_DIR, 'tty')
 const TERMINAL_INTERVAL_MS = 1000
+const SHELL_PROFILES = ['.zshrc', '.bashrc'].map((f) => join(homedir(), f))
 
-// Spinner verbs are only drawn on screen, never written to transcripts. The user's
-// `claude` shell function (see ClaudeHelpModal) runs Claude Code through this expect
-// script, which relays the session through a pseudo-terminal, forwards window resizes
-// and appends the output to tty/<pid>.log. The app reads and empties those logs.
+// Spinner verbs are only drawn on screen, never written to transcripts. The `claude` shell
+// function (SHELL_HOOK) runs Claude Code through this expect script, which relays the
+// session through a pseudo-terminal, forwards window resizes and appends the output to
+// tty/<pid>.log while the app is monitoring. The app reads and empties those logs.
+// Every second the recorder checks for this script, which exists only while monitoring is
+// on: it stops logging when the app stops and resumes when it starts again, so sessions
+// left open across app restarts keep being caught and nothing is recorded in between.
 const RECORDER_SCRIPT = `# Written by Verb 'em all while monitoring is on; removed when it stops.
-set log [file join $env(HOME) .verb-em-all tty "[pid].log"]
-file mkdir [file dirname $log]
+set dir [file join $env(HOME) .verb-em-all]
+set log [file join $dir tty "[pid].log"]
 log_user 0
-log_file -a $log
+proc follow {} {
+  global dir log
+  catch {
+    if {![file exists [file join $dir record.exp]]} {
+      log_file
+    } elseif {![file exists $log]} {
+      file mkdir [file dirname $log]
+      log_file
+      log_file -a $log
+    }
+  }
+  after 1000 follow
+}
+follow
 set stty_init "rows [stty rows] columns [stty columns]"
 spawn -noecho {*}$argv
 trap { stty rows [stty rows] columns [stty columns] < $spawn_out(slave,name) } WINCH
 interact
 catch wait result
+log_file
 file delete $log
 exit [lindex $result 3]
 `
+
 
 // Byte positions per file so we only read newly appended content
 const filePositions = new Map<string, number>()
@@ -159,7 +179,7 @@ export function stopMonitoring(): void {
     clearInterval(terminalTimer)
     terminalTimer = null
   }
-  // No recorder means new `claude` sessions run unrecorded; open logs are discarded
+  // No recorder means new `claude` sessions run unrecorded; open sessions stop logging
   rmSync(RECORDER_PATH, { force: true })
   rmSync(TTY_DIR, { recursive: true, force: true })
   filePositions.clear()
@@ -188,5 +208,31 @@ export function getClaudeStatus(): ClaudeStatus {
   }
   let recording = 0
   try { recording = readdirSync(TTY_DIR).filter((f) => f.endsWith('.log')).length } catch { /* none */ }
-  return { found: transcripts > 0, transcripts, dir: CLAUDE_PROJECTS_DIR, recording }
+  return { found: transcripts > 0, transcripts, dir: CLAUDE_PROJECTS_DIR, recording, shellHook: isShellHookInstalled() }
+}
+
+function readProfile(path: string): string | null {
+  try { return readFileSync(path, 'utf8') } catch { return null }
+}
+
+export function isShellHookInstalled(): boolean {
+  return SHELL_PROFILES.some((p) => hasShellHook(readProfile(p) ?? ''))
+}
+
+/**
+ * Add or remove the `claude` function in the user's shell profiles. Adds it to every
+ * profile that exists (creating ~/.zshrc, the macOS default, if none do); removes it
+ * from all of them. Returns whether it is installed afterwards.
+ */
+export function setShellHook(enabled: boolean): boolean {
+  const existing = SHELL_PROFILES.filter((p) => readProfile(p) !== null)
+  const targets = enabled ? (existing.length > 0 ? existing : [SHELL_PROFILES[0]]) : existing
+  for (const p of targets) {
+    const text = readProfile(p) ?? ''
+    const next = enabled ? addShellHook(text) : removeShellHook(text)
+    if (next !== text) {
+      try { writeFileSync(p, next) } catch { /* read-only profile: reported via the result */ }
+    }
+  }
+  return isShellHookInstalled()
 }

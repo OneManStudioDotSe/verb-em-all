@@ -1,28 +1,16 @@
-import React, { useState } from 'react'
+import React from 'react'
 import type { ClaudeStatus } from '../../../../shared/types'
-
-// Runs `claude` through the app's recorder when it is installed (monitoring on) and the
-// session is interactive; otherwise it is plain `claude`.
-const SHELL_FUNCTION = `claude() {
-  if [ -t 0 ] && [ -t 1 ] && [ -f ~/.verb-em-all/record.exp ]; then
-    expect -f ~/.verb-em-all/record.exp claude "$@"
-  else
-    command claude "$@"
-  fi
-}`
+import { SHELL_HOOK } from '../../../../shared/shellhook'
 
 interface ClaudeHelpModalProps {
   status: ClaudeStatus
   onClose: () => void
   onRecheck: () => void
+  onSetShellHook: (enabled: boolean) => void
 }
 
-export function ClaudeHelpModal({ status, onClose, onRecheck }: ClaudeHelpModalProps): React.JSX.Element {
-  const [copied, setCopied] = useState(false)
-
-  const copyShellFunction = (): void => {
-    navigator.clipboard.writeText(SHELL_FUNCTION).then(() => setCopied(true))
-  }
+export function ClaudeHelpModal({ status, onClose, onRecheck, onSetShellHook }: ClaudeHelpModalProps): React.JSX.Element {
+  const isMac = window.electronAPI.platform === 'darwin'
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -83,27 +71,34 @@ export function ClaudeHelpModal({ status, onClose, onRecheck }: ClaudeHelpModalP
           </>
         )}
 
-        <div className="modal-section">
-          <h3>Catch spinner verbs</h3>
-          <p>
-            The verbs Claude Code shows while it works (<em>Discombobulating…</em>) are only
-            drawn in the terminal, never saved to transcripts. To catch them, add this to your{' '}
-            <code>~/.zshrc</code> or <code>~/.bashrc</code> and open a new terminal tab:
-          </p>
-          <pre className="modal-code">{SHELL_FUNCTION}</pre>
-          <button className="btn" onClick={copyShellFunction}>{copied ? 'Copied' : 'Copy'}</button>
-          <p style={{ marginTop: 8 }}>
-            It works in iTerm, Terminal and VS Code. While monitoring is on, each{' '}
-            <code>claude</code> session's screen output goes to a temporary file in{' '}
-            <code>~/.verb-em-all</code> that the app reads and empties every second. Turning
-            monitoring off or quitting the app deletes it, and new sessions run unrecorded.
-          </p>
-          <p style={{ marginTop: 8 }}>
-            {status.recording > 0
-              ? `Recording ${status.recording} terminal session${status.recording === 1 ? '' : 's'} now.`
-              : 'No terminal session is being recorded right now.'}
-          </p>
-        </div>
+        {isMac && (
+          <div className="modal-section">
+            <h3>Catch spinner verbs</h3>
+            <p>
+              The verbs Claude Code shows while it works (<em>Discombobulating…</em>) are only
+              drawn in the terminal, never saved to transcripts.{' '}
+              {status.shellHook
+                ? <>The <code>claude</code> function that records them is in your shell profile.</>
+                : <>To catch them, the app can add this <code>claude</code> function to your{' '}
+                  <code>~/.zshrc</code> (and <code>~/.bashrc</code> if you have one):</>}
+            </p>
+            {!status.shellHook && <pre className="modal-code">{SHELL_HOOK}</pre>}
+            <button className="btn" onClick={() => onSetShellHook(!status.shellHook)}>
+              {status.shellHook ? 'Remove from my shell' : 'Add to my shell'}
+            </button>
+            <p style={{ marginTop: 8 }}>
+              It works in iTerm, Terminal and VS Code, in terminal tabs opened after it is added.
+              While monitoring is on, each <code>claude</code> session's screen output goes to a
+              temporary file in <code>~/.verb-em-all</code> that the app reads and empties every
+              second. Turning monitoring off or quitting the app deletes it and pauses recording.
+            </p>
+            <p style={{ marginTop: 8 }}>
+              {status.recording > 0
+                ? `Recording ${status.recording} terminal session${status.recording === 1 ? '' : 's'} now.`
+                : 'No terminal session is being recorded right now.'}
+            </p>
+          </div>
+        )}
 
         <div className="modal-actions">
           <button className="btn" onClick={onRecheck}>Check again</button>

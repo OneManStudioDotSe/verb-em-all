@@ -45,6 +45,7 @@ export interface ClaudeStatus {
   transcripts: number // .jsonl files seen (capped scan)
   dir: string
   recording: number   // terminal sessions currently recorded for spinner verbs
+  shellHook: boolean  // the `claude` recorder function is in ~/.zshrc or ~/.bashrc
 }
 
 export interface WordViewModel extends WordItem {

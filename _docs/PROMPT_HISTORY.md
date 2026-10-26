@@ -126,3 +126,18 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 26**
 > commit everything
+
+**Prompt 27**
+> push everything, stop everything, build from scratch and start again the app in production mode
+
+**Prompt 28**
+> I saw the verb "Embellishing" showing up at the claude code terminal session but I didn't see it getting caught. Why did this happen?
+
+**Prompt 29**
+> I cannot expect the users to do these actions and fiddle with their profiles. Can we do these tasks during the installation of the app?
+
+**Prompt 30**
+> ok, these ideas sound good. Go ahead and implement them. Then reinstall/run-again the app so I can verify that it works
+
+**Prompt 31**
+> commit your work
