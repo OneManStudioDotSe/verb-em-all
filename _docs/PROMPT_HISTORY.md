@@ -111,3 +111,12 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 21**
 > commit with the suggested messages
+
+**Prompt 22**
+> please run the new version of the app so I can see the changes in place
+
+**Prompt 23**
+> The cards with caught verbs look really bad. Please fix them and make them look similar with the uncaught verbs, but still be distinct enough to differentiate the look-and-feel between caught and uncaught
+
+**Prompt 24**
+> commit everything

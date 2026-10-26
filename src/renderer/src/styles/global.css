@@ -452,8 +452,8 @@ body {
    ============================================= */
 .word-card {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  flex-direction: column;
+  gap: 16px;
   background: var(--surface);
   border: var(--border-width) solid var(--border);
   padding: 20px 22px;
@@ -474,6 +474,13 @@ body {
 
 .word-card.is-caught:hover {
   box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0 var(--shadow-m);
+}
+
+.word-card-top {
+  flex: 1;   /* pushes the footer to the bottom so footers line up across a row */
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 .word-card-emoji {
@@ -523,15 +530,29 @@ body {
 
 .word-card-meta {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .word-card-date {
   font-size: 10px;
   font-family: var(--font-mono);
   color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.word-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-dim);
+}
+
+.word-card.is-caught .word-card-footer {
+  border-top-color: color-mix(in srgb, var(--accent-m) 45%, transparent);
 }
 
 .word-card-actions {
