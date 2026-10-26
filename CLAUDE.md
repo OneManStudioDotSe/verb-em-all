@@ -1,152 +1,155 @@
-# Space Lists - Working guidelines
+# Verb 'em all — Working guidelines
 
-This file is about **how we work on this project**, not what the code does. For
-architecture, data models, screens, and current feature status, see
-[FEATURES.md](FEATURES.md), [ROADMAP.md](ROADMAP.md), and [GOING_LIVE.md](GOING_LIVE.md) —
-keep those files, not this one, updated whenever the data layer, screens, or release
-readiness change.
-
-## AI and software development guidelines
-
-Behavioral guidelines to reduce common LLM coding mistakes, derived from [Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876) on LLM coding pitfalls.
-
-### 1. Think Before Coding
-
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
-
-Before implementing:
-
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
-
-### 2. Simplicity First
-
-**Minimum code that solves the problem. Nothing speculative.**
-
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
-
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
-
-### 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
-
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
-
-When your changes create orphans:
-
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-The test: Every changed line should trace directly to the user's request.
-
-### 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+This file is about **how we work on this project**. For what the code does, see
+[README.md](README.md) (features, install), [_docs/ARCHITECTURE.md](_docs/ARCHITECTURE.md)
+(processes, IPC, storage, design tokens), [_docs/RUNNING.md](_docs/RUNNING.md) (dev, build,
+package, release) and [_docs/IDEAS.md](_docs/IDEAS.md) (feature backlog, with DONE markers).
+Keep those files, not this one, updated whenever features, the data layer or the release
+process change. Log every user prompt in [_docs/PROMPT_HISTORY.md](_docs/PROMPT_HISTORY.md)
+right after it is given (prompts only, not responses).
 
 ## Project context (what we build, for whom)
 
-Space Lists is a Flutter mobile app (iOS/Android) for organizing personal interests —
-movies, series, music, books, comics, stocks, crypto, locations, notes, beers, and wines —
-into lists with a "Space" visual theme (glassmorphism, animated starfield, dark/light
-Nebula theming). It's aimed at individuals who want a single, richer alternative to generic
-note/list apps, with category-specific tracking (watch status, reading progress, tasting
-notes, etc.) instead of plain checkboxes.
+Verb 'em all is an Electron desktop app (macOS first, Windows build available) that turns
+vocabulary building into a game: a hardcoded list of 187 unusual verbs that developers
+"catch" with a note and timestamp, a Tamagotchi-style creature (the Verbagotchi) that feeds
+on catches, optional monitoring of Claude Code session transcripts and the clipboard for
+auto-detection, plus statistics, a timeline, a star-map "Cosmos" view, a shareable PNG card,
+procedural sound and a macOS tray quick-catch menu.
 
-Storage is offline-first: Isar for local persistence, syncing to Firestore under anonymous
-Firebase Auth. See `GOING_LIVE.md` for the current state of that sync/persistence layer
-(several "done" features are UI-only and don't yet persist) and `FEATURES.md`/`ROADMAP.md`
-for what's shipped vs. planned.
+It is a single-user, offline, local-only app: no accounts, no network calls, no telemetry.
+All data is one JSON file written by electron-store. Audience: developers who enjoy words
+and want a playful side-app while they work.
+
+## Stack and hard constraints
+
+| Layer | Tech |
+|---|---|
+| Desktop shell | Electron 41 |
+| Build | electron-vite 5 (vite 7) |
+| UI | React 19 + TypeScript 6 |
+| Storage | electron-store v8 |
+| Packaging | electron-builder 26 |
+
+- `electron-store` must stay at v8 and `chokidar` at v3: newer majors are ESM-only and break
+  the CommonJS main-process bundle. `electron-vite` 5 supports vite 7, not 8.
+- The renderer talks to the main process **only** through `window.electronAPI`
+  (`src/preload/index.ts`). Never import `ipcRenderer` in renderer code.
+- Word `id`s in `src/renderer/src/data/words.ts` are storage keys. Never change an existing id.
+- Fonts are bundled under `src/renderer/src/assets/fonts/`; do not reintroduce CDN links.
+- Runtime assets (tray/dock icons) are read via `resourcePath()` in `src/main/resources.ts`
+  and shipped through `extraResources` in `electron-builder.yml`. Files outside `out/` are
+  not in the packaged app unless listed there.
+
+## Essential commands
+
+```bash
+npm run dev          # dev server + Electron with HMR
+npm run typecheck    # main/preload + renderer
+npm run build        # production bundle → out/
+npm run package:mac  # DMGs → dist-release/ (see _docs/RUNNING.md for signing)
+```
+
+## AI and software development guidelines
+
+Behavioral guidelines to reduce common LLM coding mistakes, derived from
+[Andrej Karpathy's observations](https://x.com/karpathy/status/2015883857489522876).
+
+### 1. Think before coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them; don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop, name what's confusing, ask.
+
+### 2. Simplicity first
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked, no abstractions for single-use code, no
+  "flexibility" that wasn't requested, no error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+### 3. Surgical changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+- Don't "improve" adjacent code, comments or formatting. Match existing style.
+- Remove imports/variables/functions that *your* change made unused. Mention, don't delete,
+  pre-existing dead code.
+- Every changed line should trace directly to the user's request.
+
+### 4. Goal-driven execution
+
+**Define success criteria. Loop until verified.**
+
+- "Fix the bug" → reproduce it first, then make the reproduction pass.
+- For multi-step tasks state a brief plan with a verification per step.
 
 ## Ideation loop
 
-When brainstorming ideas or going through the planning phase, always offer alternatives that are focusing of simplicity, creativity and bold design choices. Help me understand the tradeoffs of the ideas I present. Bounce ideas back and forth with me until we reach consensus about the way forward. Always state the tradeoffs and always push me to start small, with a solid base of code and features and then expand to add more features, abilities and improvements. Do not let me push for too many tasks at the same time or for big, complicated features at a single pass, but instead push and insist on building iterationally and little by little until we have reached the desired final feature we are working on.
+When brainstorming or planning, offer alternatives that favour simplicity, creativity and
+bold design. State tradeoffs. Push to start small with a solid base and expand iteratively;
+do not accept many tasks or one big complicated feature in a single pass. For design work,
+ask for screenshots, inspiration links, palettes and font pairings rather than defaulting to
+generic patterns. The app's look is **neo-brutal**: dark background, bright accents, thick
+borders, offset shadows, no border radius. All tokens live in `global.css`.
 
-If an idea is genuinely unclear, ask (don't guess) and then continue to implement it. At the end, verify that it matches the initial and decided scope and then verify it (see Definition of Done).
+## Conventions
 
-Regarding the design of what we are working on, always ask me for screenshots, screen grabs, links with inspiration, color palettes, font combinations, links with similar ideas and in general push me to provide input for the design rather than use generic AI designs and patterns.
-
-## Conventions (stack / naming / layout)
-
-**Naming**:
-We are aiming for simplified, consistent and industry-established way of naming files, variables, classes and folders.
-The project uses a system of components and modules that are consistently named and themed via a single file that contains the related variables, definitions and classes. This makes the complete change of the UI a matter of changing a single file, thus easy to experiment with different design languages, add new components and modules and mix-and-match them at the project.
-
-**Layout**: The project uses a components-based approach to the items related with the layout of the project. These components are stand-alone, isolated in terms of the functionality they offer and as minimal as possible when it comes to inter-dependencies with other components.
-
-**Code shape**: minimum code that solves the problem — no speculative abstractions, no config/flexibility that wasn't asked for. Touch only what the task requires; match existing style even where you'd personally do it differently. If you notice unrelated dead code or drift, mention it rather than fixing it unprompted.
+- **Naming**: simple, consistent, industry-standard names for files, variables and folders.
+  Components are `PascalCase.tsx`, hooks `useX.ts`, main-process modules `lowercase.ts`.
+- **Layout**: stand-alone components with minimal inter-dependencies. `App.tsx` owns global
+  state; components receive props.
+- **Theming**: a single CSS file holds all design tokens; a theme is a `[data-theme]` block
+  that overrides them. Accent colour is applied at runtime via CSS custom properties.
+- **Code shape**: minimum code that solves the problem; match existing style.
 
 ## Guardrails
 
-These are the guardrails that should always be respected in the project.
-
 **Never:**
 
-- Commit code on your own — always let me review the diff and give the go-ahead before
-  you run `git commit`, and never push without separate approval either.
-- Commit `.env`, `*.db`, service-account/Admin SDK credentials, or anything containing real
-  API keys or secrets. (Client-side Firebase config files like `google-services.json` and
-  `GoogleService-Info.plist` are public client identifiers and are fine to commit.)
-- Disable or route around Firestore security rules or Firebase Auth to unblock a task. Flag
-  the gap instead of quietly working around it — e.g. `firestore.rules` not existing yet is
-  a tracked gap (see `GOING_LIVE.md`), not precedent for adding another unenforced path.
+- Commit on your own. Always let me review the diff and give the go-ahead before `git commit`,
+  and never push without separate approval.
+- Commit signing certificates, `.p12` files, Apple credentials or API keys. Signing and
+  notarization secrets live only in GitHub Actions secrets (see `_docs/RUNNING.md`).
+- Add network calls, telemetry or remote fonts. The app is local-only by design.
+- Change the storage schema (`StorageSchema` in `src/shared/types.ts`) or an existing word id
+  without discussing migration first: user data on disk depends on both.
 - Force-push to `main` or rewrite published history without explicit approval.
 
 **Always:**
 
-- Run `flutter analyze` and any related tests before calling anything done. (There is no
-  `test/` directory yet — flag this as a gap rather than silently skipping verification.)
-- Test UI changes in both light and dark themes.
+- Run `npm run typecheck` and `npm run build` before calling anything done. There is no test
+  suite yet; flag that as a gap rather than silently skipping verification.
+- Verify UI changes in both the dark and the Claude theme.
+- Run `npm run package:mac` when a change touches `electron-builder.yml`, `resources/`,
+  main-process asset loading or anything else that only shows up in a packaged app.
 
 ## Definition of done
 
-Turn the task into a verifiable goal before starting, not after: a bug fix means a failing test that reproduces it and then passes; a feature means stated success criteria you can check against when you're done.
+- [ ] `npm run typecheck` and `npm run build` pass.
+- [ ] Packaging verified when the change affects packaging (see above).
+- [ ] UI changes checked in both themes.
+- [ ] Regressions you introduce are fixed without waiting for feedback, without looping.
+- [ ] Docs updated: README feature table, `_docs/ARCHITECTURE.md` (IPC, schema, components),
+      `_docs/RUNNING.md` (build/release), `_docs/IDEAS.md` DONE markers, `_docs/PROMPT_HISTORY.md`.
+- [ ] Suggest a commit/PR title under 70 characters.
 
-Before claiming that a task or feature is completed, do the following:
+## Roles and escalation
 
-- [ ] Run `flutter analyze` and any related tests involved directly or indirectly with the feature, task, fix or bug we worked on.
-- [ ] Evaluate if a full build (`flutter build apk` / `flutter build ios`) is needed to verify the change, versus running the app directly (`flutter run`) — only do the full build when the change touches native/build config, not for pure Dart/UI work.
-- [ ] UI changes verified in both light and dark themes.
-- [ ] If you introduce regression errors, fix them directly without my feedback and make sure that you don't get stuck in a loop with these regressions.
-- [ ] `FEATURES.md`/`ROADMAP.md` updated when a feature's status changes; note new findings in `GOING_LIVE.md` if relevant to release readiness.
-- [ ] Suggest commit PR title for the included changes of your work and keep the PR title under 70 characters.
+**Act without stopping:** bug fixes with a clear reproduction, additive features scoped to a
+single component, behaviour-preserving refactors, documentation updates.
 
-## Roles & escalation
+**Stop and ask first:** storage schema changes, word-id changes, anything touching the
+session/clipboard watcher's scope (privacy-sensitive), Electron major upgrades, adding a new
+dependency (check its license first), signing/notarization setup, publishing a release.
 
-**Act without stopping:** bug fixes with a clear reproduction, additive features scoped to a single area, behavior-preserving refactors, documentation updates.
+## Release and versioning
 
-**Stop and ask first:** Isar schema or migration changes, anything touching Firebase Auth/session logic, changes to data retention or the biometric-lock behavior, deleting user data, force-push or history rewrite, adding a new dependency (check its license before adding), rotating or regenerating secrets, deploying or publishing to the App Store/Play Store.
-
-When a decision is genuinely the user's to make, ask — don't guess and move on.
-
-## Release / versioning
-
-- `pubspec.yaml`'s `version:` follows SemVer — bump it as part of the PR for the change.
-- Version bumps: patch for fixes, minor for additive features, major for breaking data/schema changes. Confirm major bumps with the user rather than deciding alone.
+- `package.json` `version` follows SemVer: patch for fixes, minor for additive features, major
+  for breaking storage changes (confirm major bumps with me). Bump it in the PR for the change.
+- A release is a git tag `vX.Y.Z` on `main`; `.github/workflows/release.yml` builds the DMGs
+  and attaches them to a GitHub Release. Tagging is my call, never yours.
