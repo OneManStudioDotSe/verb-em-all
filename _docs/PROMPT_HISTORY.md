@@ -79,3 +79,13 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 14**
 > Let's work on it. Update the CLAUDE.md to reflect the actual project that the code includes. Fix the packaging so it is ready to be distributed to the public, offer a ready-made app for macOS so that users on the internet can download, clone or simply install the app when downloading the repo. Then remove all placeholder stuff and content. Then go ahead and clean up the whole project by removing stale content. Also, update the documentation to fully reflect the project.
+
+**Prompt 15**
+> I want you first to commmit everything in small batches that are related. Then go ahead to bump to the latest version of Electron, deal with any issues that might arise and then push these changes also. Finally, let's see what is left to go live
+
+---
+
+## Session 4 — 2026-10-26
+
+**Prompt 16**
+> why do we have both Electron and Electron-vite? Are they both needed? I would like a purely native build. Also, if the 2 categories are empty and not used, please go ahead and clean things up. Finally, add some basic tests. At the end, build a dmg, let me know of the folder and I will try to install and use it and test the core functionality
