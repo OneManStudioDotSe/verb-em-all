@@ -4,6 +4,9 @@ out
 dist-release
 *.local
 
+# Claude Code per-machine permissions
+.claude/settings.local.json
+
 # Editor
 .DS_Store
 *.swp
