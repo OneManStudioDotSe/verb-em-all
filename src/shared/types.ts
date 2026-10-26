@@ -37,6 +37,13 @@ export interface StorageSchema {
   verbagotchi: VerbagotchiData
   accentColor: string
   theme: string
+  hideDock: boolean
+}
+
+export interface ClaudeStatus {
+  found: boolean      // ~/.claude/projects exists and holds at least one transcript
+  transcripts: number // .jsonl files seen (capped scan)
+  dir: string
 }
 
 export interface WordViewModel extends WordItem {

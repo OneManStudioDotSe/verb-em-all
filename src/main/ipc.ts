@@ -1,7 +1,14 @@
 import { ipcMain, app, BrowserWindow } from 'electron'
-import { store, catchWordInStore, uncatchWordInStore, getVerbagotchiData, saveVerbagotchiCriticalSince, getAccentColor, setAccentColor, getTheme, setTheme } from './store'
+import { store, catchWordInStore, uncatchWordInStore, getVerbagotchiData, saveVerbagotchiCriticalSince, getAccentColor, setAccentColor, getTheme, setTheme, getHideDock, setHideDock } from './store'
 import { rebuildTrayMenu } from './tray'
-import { startMonitoring, stopMonitoring, clearDetectedWord } from './watcher'
+import { startMonitoring, stopMonitoring, clearDetectedWord, getClaudeStatus } from './watcher'
+
+/** macOS only: hide the dock icon so the app lives in the menu bar. */
+export function applyDockVisibility(hide: boolean): void {
+  if (process.platform !== 'darwin' || !app.dock) return
+  if (hide) app.dock.hide()
+  else app.dock.show()
+}
 
 export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   ipcMain.handle('storage:getAllCaught', () => {
@@ -63,5 +70,19 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('settings:setTheme', (_event, t: string) => {
     setTheme(t)
+  })
+
+  ipcMain.handle('settings:getHideDock', () => {
+    return getHideDock()
+  })
+
+  ipcMain.handle('settings:setHideDock', (_event, hide: boolean) => {
+    setHideDock(hide)
+    applyDockVisibility(hide)
+    return hide
+  })
+
+  ipcMain.handle('monitor:getClaudeStatus', () => {
+    return getClaudeStatus()
   })
 }

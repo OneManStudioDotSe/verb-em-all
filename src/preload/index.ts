@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { CaughtRecord, VerbagotchiData } from '../shared/types'
+import type { CaughtRecord, VerbagotchiData, ClaudeStatus } from '../shared/types'
 
 const electronAPI = {
   // Platform
@@ -39,6 +39,7 @@ const electronAPI = {
   onWordsDetected: (callback: (wordIds: string[]) => void): void => {
     ipcRenderer.on('words:detected', (_event, ids) => callback(ids))
   },
+  getClaudeStatus: (): Promise<ClaudeStatus> => ipcRenderer.invoke('monitor:getClaudeStatus'),
 
   // Verbagotchi
   getVerbagotchiData: (): Promise<VerbagotchiData> => ipcRenderer.invoke('verbagotchi:getData'),
@@ -52,6 +53,10 @@ const electronAPI = {
   // Theme
   getTheme: (): Promise<string> => ipcRenderer.invoke('settings:getTheme'),
   setTheme: (t: string): Promise<void> => ipcRenderer.invoke('settings:setTheme', t),
+
+  // Dock icon (macOS)
+  getHideDock: (): Promise<boolean> => ipcRenderer.invoke('settings:getHideDock'),
+  setHideDock: (hide: boolean): Promise<boolean> => ipcRenderer.invoke('settings:setHideDock', hide),
 
   // Cleanup
   removeAllListeners: (channel: string): void => {
