@@ -46,6 +46,7 @@ and want a playful side-app while they work.
 ```bash
 npm run dev          # dev server + Electron with HMR
 npm run typecheck    # main/preload + renderer
+npm test             # vitest (tests/)
 npm run build        # production bundle → out/
 npm run package:mac  # DMGs → dist-release/ (see _docs/RUNNING.md for signing)
 ```
@@ -122,15 +123,15 @@ borders, offset shadows, no border radius. All tokens live in `global.css`.
 
 **Always:**
 
-- Run `npm run typecheck` and `npm run build` before calling anything done. There is no test
-  suite yet; flag that as a gap rather than silently skipping verification.
+- Run `npm run typecheck`, `npm test` and `npm run build` before calling anything done. Add a
+  test in `tests/` when you touch pure logic (detector, data, helpers).
 - Verify UI changes in both the dark and the Claude theme.
 - Run `npm run package:mac` when a change touches `electron-builder.yml`, `resources/`,
   main-process asset loading or anything else that only shows up in a packaged app.
 
 ## Definition of done
 
-- [ ] `npm run typecheck` and `npm run build` pass.
+- [ ] `npm run typecheck`, `npm test` and `npm run build` pass.
 - [ ] Packaging verified when the change affects packaging (see above).
 - [ ] UI changes checked in both themes.
 - [ ] Regressions you introduce are fixed without waiting for feedback, without looping.

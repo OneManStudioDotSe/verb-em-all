@@ -1,7 +1,7 @@
 {
   "name": "verb-em-all",
   "version": "1.0.0",
-  "description": "A Pokémon-style desktop app for catching unusual verbs you meet while coding",
+  "description": "A Pok\u00e9mon-style desktop app for catching unusual verbs you meet while coding",
   "homepage": "https://github.com/OneManStudioDotSe/verb-em-all",
   "repository": {
     "type": "git",
@@ -18,7 +18,8 @@
     "package:all": "npm run build && electron-builder --mac --win",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
-    "typecheck": "npm run typecheck:node && npm run typecheck:web"
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "test": "vitest run"
   },
   "keywords": [
     "electron",
@@ -36,7 +37,8 @@
     "electron-builder": "^26.8.1",
     "electron-vite": "^5.0.0",
     "typescript": "^6.0.2",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^5.0.5"
   },
   "dependencies": {
     "@electron-toolkit/utils": "^4.0.0",

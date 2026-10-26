@@ -42,8 +42,15 @@ npm run typecheck:node   # main + preload only
 npm run typecheck:web    # renderer only
 ```
 
-There is no test suite yet. `npm run typecheck` and `npm run build` are the verification bar,
-plus `npm run package:mac` for anything that touches packaging.
+## Tests
+
+```bash
+npm test                 # vitest, runs tests/*.test.ts
+```
+
+Tests cover the pure parts: the detector (`src/main/detector.ts`), the word list's integrity
+and the accent palette. UI and main-process wiring are verified by `npm run typecheck`,
+`npm run build`, and `npm run package:mac` for anything that touches packaging.
 
 ---
 
