@@ -93,7 +93,7 @@ bundled, so the app never contacts a CDN.
 
 | Layer | Technology |
 |---|---|
-| Desktop shell | Electron 41 |
+| Desktop shell | Electron 45 |
 | Build tool | electron-vite 5 |
 | UI | React 19 + TypeScript 6 |
 | Storage | electron-store v8 (atomic JSON) |

@@ -25,7 +25,7 @@ and want a playful side-app while they work.
 
 | Layer | Tech |
 |---|---|
-| Desktop shell | Electron 41 |
+| Desktop shell | Electron 45 |
 | Build | electron-vite 5 (vite 7) |
 | UI | React 19 + TypeScript 6 |
 | Storage | electron-store v8 |

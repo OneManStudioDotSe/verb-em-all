@@ -12,7 +12,7 @@ timestamps, and wraps that in a small game (the Verbagotchi creature, a star map
 
 | Layer | Technology | Why |
 |---|---|---|
-| Desktop shell | Electron 41 | Cross-platform native app |
+| Desktop shell | Electron 45 | Cross-platform native app |
 | Build tool | electron-vite 5 | HMR in dev, handles main/preload/renderer split cleanly |
 | UI | React 19 + TypeScript 6 | Component model matches the tab/modal/list structure |
 | Persistent storage | electron-store v8 | Atomic JSON writes, correct OS paths, CJS-compatible |

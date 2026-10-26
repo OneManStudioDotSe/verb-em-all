@@ -27,6 +27,10 @@ need a restart.
 > npm install-scripts approve electron esbuild fsevents electron-winstaller
 > npm rebuild electron
 > ```
+>
+> If `node_modules/electron/dist` is still missing afterwards, run the installer directly:
+> `node node_modules/electron/install.js`. Approval is per Electron version, so repeat this
+> after an Electron upgrade.
 
 ---
 
