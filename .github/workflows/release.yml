@@ -1,0 +1,39 @@
+name: Release
+
+# Pushing a tag like v1.0.0 builds the macOS DMGs and attaches them to a
+# GitHub Release. Code signing and notarization are optional: add the secrets
+# listed in _docs/RUNNING.md and the same workflow produces a notarized build.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  mac:
+    runs-on: macos-latest
+    env:
+      CSC_LINK: ${{ secrets.MAC_CERT_P12 }}
+      CSC_KEY_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+      CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.MAC_CERT_P12 != '' }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npx electron-builder --mac --publish never
+      - name: Attach DMGs to the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" --generate-notes dist-release/*.dmg \
+            || gh release upload "${GITHUB_REF_NAME}" dist-release/*.dmg --clobber
