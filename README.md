@@ -2,7 +2,7 @@
 
 > Gotta catch 'em all — but for words.
 
-A Pokémon-style desktop app for collecting unusual verbs you meet while coding. Browse 187
+A Pokémon-style desktop app for collecting unusual verbs you meet while coding. Browse 193
 hand-picked verbs, catch them with a note, and watch your Verbagotchi creature grow. Optional
 auto-detection reads your Claude Code session transcripts, clipboard and (with a one-line shell
 function) the spinner verbs Claude Code shows in your terminal, so verbs find you.
@@ -52,7 +52,7 @@ npm run package:mac  # or build your own DMG into dist-release/
 
 | Feature | Description |
 |---|---|
-| **187-verb list** | Hand-curated verbs with emoji, one-line definition and category |
+| **193-verb list** | Hand-curated verbs with emoji, one-line definition and category |
 | **Catch & release** | Catch with an optional note; every catch is kept in a per-verb history. Release a verb from the Caught tab |
 | **Live search & sort** | Filter by name, definition or category; sort by title, category or catch count |
 | **Celebration** | Full-screen confetti on every catch |

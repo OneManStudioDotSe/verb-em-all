@@ -63,6 +63,12 @@ describe('detectSpinnerVerbs', () => {
     expect(detectSpinnerVerbs("✻ BEBOPPIN'…")).toEqual(['beboppin'])
   })
 
+  it('handles accented and hyphenated verbs', () => {
+    expect(detectSpinnerVerbs('✻ Flambéing…')).toEqual(['flambeeing'])
+    expect(detectSpinnerVerbs('✻ Sautéing…')).toEqual(['sauteing'])
+    expect(detectSpinnerVerbs('✻ Dilly-dallying…')).toEqual(['dilly-dallying'])
+  })
+
   it('needs the ellipsis and a whole known verb', () => {
     expect(detectSpinnerVerbs('Whirring along')).toEqual([])
     expect(detectSpinnerVerbs('\x1b[11G\x1b[38;2;215;119;87mr…')).toEqual([])

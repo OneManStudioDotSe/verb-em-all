@@ -120,3 +120,9 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 24**
 > commit everything
+
+**Prompt 25**
+> ok, now let's do one last search on the internet for any new verbs that have been reported as showing up at Claude code and add them to the list of verbs that we can catch. Report back your findings
+
+**Prompt 26**
+> commit everything

@@ -7,8 +7,8 @@ const CATEGORIES: WordCategory[] = [
 ]
 
 describe('word list', () => {
-  it('has 187 verbs', () => {
-    expect(WORDS).toHaveLength(187)
+  it('has 193 verbs', () => {
+    expect(WORDS).toHaveLength(193)
   })
 
   it('has unique ids and unique words', () => {

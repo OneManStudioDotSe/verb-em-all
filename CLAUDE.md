@@ -11,7 +11,7 @@ right after it is given (prompts only, not responses).
 ## Project context (what we build, for whom)
 
 Verb 'em all is an Electron desktop app (macOS first, Windows build available) that turns
-vocabulary building into a game: a hardcoded list of 187 unusual verbs that developers
+vocabulary building into a game: a hardcoded list of 193 unusual verbs that developers
 "catch" with a note and timestamp, a Tamagotchi-style creature (the Verbagotchi) that feeds
 on catches, optional monitoring of Claude Code session transcripts and the clipboard for
 auto-detection, plus statistics, a timeline, a star-map "Cosmos" view, a shareable PNG card,

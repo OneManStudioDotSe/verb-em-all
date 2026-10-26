@@ -25,8 +25,8 @@ export function detectWords(text: string): string[] {
   return found
 }
 
-// Spinner text as Claude Code draws it: "Whirring…", "Beboppin'…"
-const SPINNER_VERB = /([A-Za-z][A-Za-z'’]*)…/g
+// Spinner text as Claude Code draws it: "Whirring…", "Beboppin'…", "Flambéing…", "Dilly-dallying…"
+const SPINNER_VERB = /(\p{L}[\p{L}'’-]*)…/gu
 const ID_BY_WORD = new Map(WORDS.map((w) => [w.word.toLowerCase().replace(/[^a-z]/g, ''), w.id]))
 
 /**

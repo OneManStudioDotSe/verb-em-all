@@ -84,7 +84,7 @@ verb-em-all/
 │           ├── assets/fonts/         # Bundled woff2 fonts (+ README with licenses)
 │           ├── styles/global.css     # All styles; design tokens + theme overrides
 │           ├── data/
-│           │   ├── words.ts          # Hardcoded 187-verb list
+│           │   ├── words.ts          # Hardcoded 193-verb list
 │           │   └── palette.ts        # 10 accent colours with shadow pairs
 │           ├── hooks/
 │           │   ├── useStorage.ts     # IPC storage read/write
