@@ -6,6 +6,10 @@ import { buildAppMenu } from './menu'
 import { createTray } from './tray'
 import { startMonitoring } from './watcher'
 import { store } from './store'
+import { resourcePath } from './resources'
+
+// Set by before-quit so the macOS close handler lets the window actually close
+let isQuitting = false
 
 function createWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
@@ -19,7 +23,7 @@ function createWindow(): BrowserWindow {
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      sandbox: true,
       contextIsolation: true
     }
   })
@@ -30,8 +34,7 @@ function createWindow(): BrowserWindow {
 
   // On macOS: hide to tray instead of quitting when the window is closed
   mainWindow.on('close', (event) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (process.platform === 'darwin' && !(app as any).isQuitting) {
+    if (process.platform === 'darwin' && !isQuitting) {
       event.preventDefault()
       mainWindow.hide()
     }
@@ -51,27 +54,15 @@ function createWindow(): BrowserWindow {
   return mainWindow
 }
 
-// Flag so the tray "Quit" item can fully exit
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace NodeJS {
-    interface Process {
-      // already typed in @types/node but we need it on app
-    }
-  }
-}
-// Attach isQuitting to app object for the close handler above
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(app as any).isQuitting = false
-
 app.on('before-quit', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(app as any).isQuitting = true
+  isQuitting = true
 })
 
 app.whenReady().then(() => {
-  if (process.platform === 'darwin') {
-    const dockIcon = nativeImage.createFromPath(join(app.getAppPath(), 'resources/icon.png'))
+  // Packaged builds get their dock icon from the bundle's icon.icns; this only
+  // matters in development where Electron's default icon would show instead.
+  if (process.platform === 'darwin' && !app.isPackaged) {
+    const dockIcon = nativeImage.createFromPath(resourcePath('icon.png'))
     if (!dockIcon.isEmpty()) app.dock?.setIcon(dockIcon)
   }
 

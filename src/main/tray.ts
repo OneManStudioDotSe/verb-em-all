@@ -1,6 +1,6 @@
-import { Tray, Menu, nativeImage, BrowserWindow, app } from 'electron'
-import { join } from 'path'
+import { Tray, Menu, nativeImage, BrowserWindow } from 'electron'
 import { store, catchWordInStore } from './store'
+import { resourcePath } from './resources'
 import { WORDS } from '../renderer/src/data/words'
 
 let tray: Tray | null = null
@@ -16,7 +16,7 @@ export function createTray(mainWindow: BrowserWindow): void {
   // Load monochrome tray icon (grayscale PNG); fall back to text title
   let icon = nativeImage.createEmpty()
   try {
-    const raw = nativeImage.createFromPath(join(app.getAppPath(), 'resources/tray-icon.png'))
+    const raw = nativeImage.createFromPath(resourcePath('tray-icon.png'))
     if (!raw.isEmpty()) {
       icon = raw.resize({ width: 18, height: 18 })
       icon.setTemplateImage(true)
