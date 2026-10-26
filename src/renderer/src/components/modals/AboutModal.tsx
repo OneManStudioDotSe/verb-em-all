@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
+const REPO_URL = 'https://github.com/OneManStudioDotSe/verb-em-all'
+
 interface AboutModalProps {
   onClose: () => void
 }
@@ -34,9 +36,20 @@ export function AboutModal({ onClose }: AboutModalProps): React.JSX.Element {
 
         <div className="modal-section">
           <h3>Developer</h3>
-          <p>Your Name</p>
+          <p>Sotiris Falieris · One Man Studio</p>
           <p style={{ marginTop: 4 }}>
-            <span style={{ color: 'var(--text-muted)' }}>your.website</span>
+            <a href={REPO_URL} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-c)' }}>
+              github.com/OneManStudioDotSe/verb-em-all
+            </a>
+          </p>
+        </div>
+
+        <div className="modal-section">
+          <h3>Privacy</h3>
+          <p>
+            Everything stays on this computer. Your catches live in a local JSON file, and the
+            optional session monitoring reads your Claude Code transcripts and clipboard locally
+            without sending anything anywhere.
           </p>
         </div>
 
@@ -46,8 +59,10 @@ export function AboutModal({ onClose }: AboutModalProps): React.JSX.Element {
             <li>Electron + React + TypeScript</li>
             <li>electron-vite for fast dev builds</li>
             <li>electron-store for persistent storage</li>
+            <li>Space Grotesk and JetBrains Mono (bundled, SIL OFL)</li>
             <li>Neo-brutal design aesthetic</li>
           </ul>
+          <p style={{ marginTop: 8 }}>Open source under the Apache 2.0 license.</p>
         </div>
 
         <div className="modal-actions">

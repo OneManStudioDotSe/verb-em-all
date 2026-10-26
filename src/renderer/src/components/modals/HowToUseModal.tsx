@@ -4,6 +4,10 @@ interface HowToUseModalProps {
   onClose: () => void
 }
 
+const Y = { color: 'var(--accent-y)' }
+const M = { color: 'var(--accent-m)' }
+const C = { color: 'var(--accent-c)' }
+
 export function HowToUseModal({ onClose }: HowToUseModalProps): React.JSX.Element {
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -27,29 +31,63 @@ export function HowToUseModal({ onClose }: HowToUseModalProps): React.JSX.Elemen
         <div className="modal-section">
           <h3>Chase List</h3>
           <p>
-            The <strong style={{ color: 'var(--accent-y)' }}>Chase List</strong> tab shows all verbs
-            that are still out there waiting to be caught. Use the search box to find one by name,
-            description, or category.
+            The <strong style={Y}>Chase List</strong> tab shows every verb still out there. Search
+            by name, description or category, and sort by title or category.
           </p>
         </div>
 
         <div className="modal-section">
           <h3>Catching a verb</h3>
           <ul>
-            <li>Find the verb you encountered in the Chase List.</li>
-            <li>Click <strong style={{ color: 'var(--accent-y)' }}>Catch it!</strong></li>
+            <li>Find the verb you encountered and click <strong style={Y}>Catch it!</strong></li>
             <li>Optionally add a note about where you found it.</li>
-            <li>Confirm — it's yours forever.</li>
+            <li>Confirm and enjoy the celebration.</li>
+            <li>Catch the same verb again any time — every encounter is recorded.</li>
           </ul>
         </div>
 
         <div className="modal-section">
-          <h3>Caught tab</h3>
+          <h3>Caught, Timeline and Cosmos</h3>
+          <ul>
+            <li>
+              <strong style={M}>Caught</strong> is your collection, sortable by title, category or
+              number of catches. You can release a verb from here if you change your mind.
+            </li>
+            <li>
+              <strong style={Y}>Timeline</strong> is a day-by-day diary of every catch and note.
+            </li>
+            <li>
+              <strong style={C}>✦ Cosmos</strong> draws all verbs as a star map grouped by category.
+              Caught verbs shine; drag to pan, scroll to zoom, click a star to catch it.
+            </li>
+          </ul>
+        </div>
+
+        <div className="modal-section">
+          <h3>Verbagotchi</h3>
           <p>
-            The <strong style={{ color: 'var(--accent-m)' }}>Caught</strong> tab shows your
-            collection. Each card shows when you last caught it and your total catch count. You can
-            catch the same verb multiple times — every encounter is worth recording.
+            The creature in the corner feeds on catches. It evolves as your collection grows and gets
+            hungry if you stop catching: a week without a catch and it is gone, and after a day in
+            critical condition it escapes with one of your verbs. Keep it fed.
           </p>
+        </div>
+
+        <div className="modal-section">
+          <h3>Auto-detection</h3>
+          <p>
+            Click <strong style={C}>○</strong> in the header to monitor your Claude Code session
+            transcripts and clipboard. Matching verbs show up in a panel above the list for one-click
+            catching. Everything is read locally; nothing leaves your computer.
+          </p>
+        </div>
+
+        <div className="modal-section">
+          <h3>Menu, sound and tray</h3>
+          <ul>
+            <li><strong style={Y}>≡</strong> opens Statistics, the Share Card, Accent Color and Theme.</li>
+            <li><strong style={Y}>♪</strong> turns on procedural sound: each verb has its own signature.</li>
+            <li>On macOS, the ⚡ tray icon offers a Quick Catch menu without opening the window.</li>
+          </ul>
         </div>
 
         <div className="modal-actions">
