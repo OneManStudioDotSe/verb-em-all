@@ -98,13 +98,15 @@ body {
   min-height: 60px;
 }
 
-/* Push title clear of macOS traffic lights */
+/* macOS: traffic lights sit in the top-left; drop the whole header row below them */
 [data-platform="darwin"] .app-header {
-  padding-left: 76px;
+  padding-top: 44px;
+  padding-left: 24px;
+  align-items: flex-end;
 }
 
 .app-title {
-  font-size: 34px;
+  font-size: 44px;
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--accent-y);
@@ -176,7 +178,7 @@ body {
 }
 
 .app-right-col {
-  width: 210px;
+  width: 230px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -185,6 +187,28 @@ body {
 /* =============================================
    SEARCH BOX
    ============================================= */
+/* Grid-row trick: animates the search box's height to zero when Cosmos is active */
+.search-collapse {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows 260ms ease, opacity 180ms ease, margin-bottom 260ms ease;
+}
+
+.search-collapse > div {
+  overflow: hidden;
+  /* leave room for the offset shadow so it is not clipped */
+  padding: 0 8px 8px 0;
+  margin: 0 -8px -8px 0;
+}
+
+.search-collapse--hidden {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-bottom: -16px;   /* swallow the column gap */
+  pointer-events: none;
+}
+
 .search-box {
   position: relative;
   flex-shrink: 0;
@@ -236,6 +260,7 @@ body {
    ============================================= */
 .tab-bar {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   flex-shrink: 0;
 }
@@ -249,12 +274,24 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 11px 22px;
+  padding: 11px 18px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+/* The buttons also carry view names (timeline, constellation) as classes;
+   keep the view containers' layout rules from leaking onto them. */
+.tab-bar .tab-btn {
+  display: inline-flex;
+  flex-direction: row;
+  flex: none;
+  overflow: visible;
+  padding: 11px 18px;
 }
 
 .tab-btn:hover {
@@ -638,15 +675,37 @@ body {
 }
 
 .modal {
+  position: relative;
   background: var(--surface);
   border: var(--border-width) solid var(--border);
   box-shadow: 8px 8px 0 var(--shadow-y);
   width: 100%;
   max-width: 480px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 28px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.modal-code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--bg);
+  border: 1px solid var(--border-dim);
+  padding: 8px 10px;
+  margin: 8px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--accent-c);
+}
+
+.modal code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--accent-c);
 }
 
 .modal-info {
@@ -764,6 +823,25 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 16px;
+  position: sticky;
+  top: -28px;              /* cancel the modal padding so it hugs the top edge */
+  margin: -28px -28px 0;
+  padding: 28px 28px 12px;
+  background: var(--surface);
+  z-index: 1;
+}
+
+/* Inside the sticky header the close button is a normal flex item */
+.modal-info-header .modal-close {
+  position: static;
+  margin: -4px -6px 0 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .modal-version {
@@ -992,6 +1070,59 @@ body {
   border-color: var(--accent-c);
   color: var(--accent-c);
   box-shadow: 0 0 8px rgba(0, 245, 212, 0.3);
+}
+
+/* ─── CLAUDE DETECTION INDICATOR ──────────────────────────────────────────── */
+.monitor-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.claude-indicator {
+  background: var(--surface);
+  border: var(--border-width) solid var(--border-dim);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  height: 34px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.claude-indicator:hover {
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.claude-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-dim);
+  flex-shrink: 0;
+}
+
+.claude-indicator.found .claude-indicator-dot {
+  background: var(--accent-g);
+  box-shadow: 0 0 6px var(--accent-g);
+}
+
+.claude-indicator.missing .claude-indicator-dot {
+  background: #ff4444;
+  animation: claude-dot-blink 1.6s ease-in-out infinite;
+}
+
+@keyframes claude-dot-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
 }
 
 /* ─── SOUND TOGGLE ─────────────────────────────────────────────────────────── */
@@ -1894,21 +2025,22 @@ body {
 
 /* Expanded panel */
 .verbagotchi-expanded {
-  padding: 14px 16px;
+  padding: 12px 16px 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
 }
 
 .verbagotchi-top-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
 
 .verbagotchi-level-badge {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -1924,7 +2056,14 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  flex: 1;
+  white-space: nowrap;
+}
+
+/* Expanded panel: the state sits centred under the creature */
+.verbagotchi-expanded > .verbagotchi-state-label {
+  font-size: 11px;
+  text-align: center;
+  letter-spacing: 0.14em;
 }
 
 .verbagotchi-state--thriving { color: var(--accent-c); }
@@ -1954,7 +2093,7 @@ body {
 .verbagotchi-stage {
   display: flex;
   justify-content: center;
-  padding: 4px 0;
+  padding: 2px 0 0;
 }
 
 .verbagotchi-ascii {
@@ -1979,18 +2118,17 @@ body {
   animation: verbagotchi-shake 0.4s ease infinite;
 }
 
-/* Info row: health bar + stats */
-.verbagotchi-info-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
+/* Health: label + percentage on one line, full-width bar underneath */
 .verbagotchi-health-block {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.verbagotchi-health-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
 .verbagotchi-health-label {
@@ -2023,29 +2161,36 @@ body {
 
 .verbagotchi-health-pct {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   flex-shrink: 0;
-  min-width: 30px;
   text-align: right;
 }
 
+/* Stats: two columns, labels above values, aligned to the panel edges */
 .verbagotchi-stats {
   display: flex;
+  justify-content: space-between;
   gap: 12px;
-  flex-shrink: 0;
+  border-top: 1px solid var(--border-dim);
+  padding-top: 8px;
 }
 
 .verbagotchi-stat {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1px;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.verbagotchi-stat--right {
+  align-items: flex-end;
+  text-align: right;
 }
 
 .verbagotchi-stat-label {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -2054,7 +2199,7 @@ body {
 
 .verbagotchi-stat-value {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text);
 }

@@ -117,9 +117,6 @@ export function Verbagotchi({ caughtMap, onUncatch }: VerbagotchiProps): React.J
               <div className="verbagotchi-level-badge">
                 {LEVEL_EMOJI[level]} {levelName}
               </div>
-              <div className={`verbagotchi-state-label verbagotchi-state--${state}`}>
-                {STATE_LABEL[state]}
-              </div>
               <button
                 className="verbagotchi-chevron"
                 onClick={() => setCollapsed(true)}
@@ -135,29 +132,31 @@ export function Verbagotchi({ caughtMap, onUncatch }: VerbagotchiProps): React.J
               </pre>
             </div>
 
-            <div className="verbagotchi-info-row">
-              <div className="verbagotchi-health-block">
-                <div className="verbagotchi-health-label">HEALTH</div>
-                <div className="verbagotchi-health-bar-wrap">
-                  <div
-                    className="verbagotchi-health-bar-fill"
-                    style={{ width: `${health}%`, background: barColor }}
-                  />
-                </div>
-                <div className="verbagotchi-health-pct" style={{ color: barColor }}>
-                  {health}%
-                </div>
-              </div>
+            <div className={`verbagotchi-state-label verbagotchi-state--${state}`}>
+              {STATE_LABEL[state]}
+            </div>
 
-              <div className="verbagotchi-stats">
-                <div className="verbagotchi-stat">
-                  <span className="verbagotchi-stat-label">caught</span>
-                  <span className="verbagotchi-stat-value">{caughtCount}</span>
-                </div>
-                <div className="verbagotchi-stat">
-                  <span className="verbagotchi-stat-label">fed</span>
-                  <span className="verbagotchi-stat-value">{lastFedAgo}</span>
-                </div>
+            <div className="verbagotchi-health-block">
+              <div className="verbagotchi-health-head">
+                <span className="verbagotchi-health-label">Health</span>
+                <span className="verbagotchi-health-pct" style={{ color: barColor }}>{health}%</span>
+              </div>
+              <div className="verbagotchi-health-bar-wrap">
+                <div
+                  className="verbagotchi-health-bar-fill"
+                  style={{ width: `${health}%`, background: barColor }}
+                />
+              </div>
+            </div>
+
+            <div className="verbagotchi-stats">
+              <div className="verbagotchi-stat">
+                <span className="verbagotchi-stat-label">Caught</span>
+                <span className="verbagotchi-stat-value">{caughtCount}</span>
+              </div>
+              <div className="verbagotchi-stat verbagotchi-stat--right">
+                <span className="verbagotchi-stat-label">Last fed</span>
+                <span className="verbagotchi-stat-value">{lastFedAgo}</span>
               </div>
             </div>
 
