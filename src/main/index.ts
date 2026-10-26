@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow, nativeImage } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
-import { registerIpcHandlers } from './ipc'
+import { registerIpcHandlers, applyDockVisibility } from './ipc'
 import { buildAppMenu } from './menu'
 import { createTray } from './tray'
 import { startMonitoring } from './watcher'
@@ -65,6 +65,8 @@ app.whenReady().then(() => {
     const dockIcon = nativeImage.createFromPath(resourcePath('icon.png'))
     if (!dockIcon.isEmpty()) app.dock?.setIcon(dockIcon)
   }
+
+  applyDockVisibility(store.get('hideDock'))
 
   const mainWindow = createWindow()
   registerIpcHandlers(mainWindow)

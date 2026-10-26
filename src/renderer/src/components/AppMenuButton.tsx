@@ -8,6 +8,8 @@ interface AppMenuButtonProps {
   onShowColorPicker: () => void
   onToggleTheme: () => void
   currentTheme: string
+  hideDock: boolean
+  onToggleHideDock?: () => void // undefined on non-macOS
 }
 
 export function AppMenuButton({
@@ -17,7 +19,9 @@ export function AppMenuButton({
   onShowShareCard,
   onShowColorPicker,
   onToggleTheme,
-  currentTheme
+  currentTheme,
+  hideDock,
+  onToggleHideDock
 }: AppMenuButtonProps): React.JSX.Element {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -63,6 +67,11 @@ export function AppMenuButton({
           <button className="app-menu-item" onClick={() => handleItem(onToggleTheme)}>
             {currentTheme === 'claude' ? '🌙 Dark Theme' : '☀️ Claude Theme'}
           </button>
+          {onToggleHideDock && (
+            <button className="app-menu-item" onClick={() => handleItem(onToggleHideDock)}>
+              {hideDock ? '🖥 Show in Dock' : '⚡ Menu Bar Only'}
+            </button>
+          )}
           <div className="app-menu-divider" />
           <button className="app-menu-item" onClick={() => handleItem(onShowHowToUse)}>
             📖 How to Use

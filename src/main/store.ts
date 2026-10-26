@@ -8,7 +8,8 @@ export const store = new Store<StorageSchema>({
     monitoringEnabled: false,
     verbagotchi: { criticalSince: null },
     accentColor: '#f5e642',
-    theme: 'dark'
+    theme: 'dark',
+    hideDock: false
   }
 })
 
@@ -54,4 +55,12 @@ export function getTheme(): string {
 
 export function setTheme(t: string): void {
   store.set('theme', t)
+}
+
+export function getHideDock(): boolean {
+  return store.get('hideDock')
+}
+
+export function setHideDock(hide: boolean): void {
+  store.set('hideDock', hide)
 }
