@@ -1309,7 +1309,8 @@ body {
   background: var(--surface-2);
 }
 
-.detection-card.already-caught {
+.detection-card.already-caught .detection-card-emoji,
+.detection-card.already-caught .detection-card-word {
   opacity: 0.6;
 }
 
@@ -1355,6 +1356,21 @@ body {
 .btn-detection-catch:hover {
   background: var(--accent-c);
   border-color: var(--accent-c);
+}
+
+/* Verbs already caught: outlined, like the Caught tab's "Catch again" */
+.btn-detection-catch.again,
+.btn-detection-catchall.again {
+  background: var(--surface-2);
+  color: var(--accent-m);
+  border-color: var(--accent-m);
+}
+
+.btn-detection-catch.again:hover,
+.btn-detection-catchall.again:hover {
+  background: var(--accent-m);
+  color: var(--text-dark);
+  border-color: var(--accent-m);
 }
 
 .btn-detection-dismiss {

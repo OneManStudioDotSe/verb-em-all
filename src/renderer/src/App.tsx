@@ -216,12 +216,11 @@ export default function App(): React.JSX.Element {
   }
 
   async function handleCatchAll(words: WordViewModel[]): Promise<void> {
-    const newWords = words.filter((w) => !w.isCaught)
-    for (const word of newWords) {
+    for (const word of words) {
       await catchWord(word.id, '')
     }
-    setDetectedIds((prev) => prev.filter((id) => !newWords.some((w) => w.id === id)))
-    if (newWords.length > 0) setActiveTab('caught')
+    setDetectedIds((prev) => prev.filter((id) => !words.some((w) => w.id === id)))
+    if (words.some((w) => !w.isCaught)) setActiveTab('caught')
   }
 
   if (isLoading) {

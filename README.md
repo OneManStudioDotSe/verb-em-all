@@ -58,7 +58,7 @@ npm run package:mac  # or build your own DMG into dist-release/
 | **Celebration** | Full-screen confetti on every catch |
 | **Auto-detection** | Watches `~/.claude/projects/**/*.jsonl` and the clipboard (every 2 s) for matching verbs |
 | **Spinner verbs** | Catches the verbs Claude Code shows while it works ("Discombobulating…") in iTerm, Terminal or VS Code. They are never written to transcripts, so a `claude` shell function (copy it from the Claude indicator's help) runs sessions through a small `expect` recorder |
-| **Detection panel** | Spotted verbs appear above the list for one-click catching, catch-all or dismiss |
+| **Detection panel** | Spotted verbs appear above the list for one-click catching, catch-all or dismiss. Verbs you already have get an outlined **↻ Again** button and their own **Catch all again** |
 | **Verbagotchi** | ASCII creature with four evolution stages. Health drains over seven days without a catch; after 24 h in critical condition it escapes with one of your verbs |
 | **Timeline** | Day-grouped diary of every catch and note, searchable |
 | **Cosmos** | Zoomable, draggable star map of all verbs grouped into named constellations by category; caught verbs shine and the creature roams between them |

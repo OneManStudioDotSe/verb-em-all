@@ -168,7 +168,8 @@ Monitoring enabled (header ○ button)
   → writes ~/.verb-em-all/record.exp (expect script), polls ~/.verb-em-all/tty/*.log every 1 s:
       read + truncate each log → detectSpinnerVerbs() strips ANSI codes, matches "Verb…"
   → new IDs sent once per session via 'words:detected'
-  → DetectionPanel shows them for quick catching
+  → DetectionPanel shows them for quick catching (★ Catch / Catch all new for new verbs,
+    outlined ↻ Again / Catch all again for verbs already caught)
 ```
 
 Spinner verbs ("Whirring…") are only drawn in the terminal, never written to transcripts. The

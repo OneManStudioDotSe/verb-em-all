@@ -19,6 +19,7 @@ export function DetectionPanel({
   if (detectedWords.length === 0) return null
 
   const newOnes = detectedWords.filter((w) => !w.isCaught)
+  const seenOnes = detectedWords.filter((w) => w.isCaught)
 
   return (
     <div className="detection-panel">
@@ -38,6 +39,15 @@ export function DetectionPanel({
               Catch all new ({newOnes.length})
             </button>
           )}
+          {seenOnes.length > 1 && (
+            <button
+              className="btn-detection-catchall again"
+              onClick={() => onCatchAll(seenOnes)}
+              title="Catch every verb you already have once more, without notes"
+            >
+              Catch all again ({seenOnes.length})
+            </button>
+          )}
           <button className="btn-detection-dismiss-all" onClick={onDismissAll} title="Dismiss all">
             Clear
           </button>
@@ -53,11 +63,11 @@ export function DetectionPanel({
               <span className="detection-card-badge">caught ×{word.catchCount}</span>
             )}
             <button
-              className="btn-detection-catch"
+              className={`btn-detection-catch${word.isCaught ? ' again' : ''}`}
               onClick={() => onCatch(word)}
               title={word.isCaught ? 'Catch again' : 'Catch it!'}
             >
-              {word.isCaught ? '★ again' : '★ Catch'}
+              {word.isCaught ? '↻ Again' : '★ Catch'}
             </button>
             <button
               className="btn-detection-dismiss"

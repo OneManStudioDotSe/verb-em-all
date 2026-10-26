@@ -105,3 +105,9 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 19**
 > Also, many verbs like "Discombobulating", "Scurrying" and even more are not caught!
+
+**Prompt 20**
+> add also the ability to catch verbs that we have seen before. Use a different style of button for that action
+
+**Prompt 21**
+> commit with the suggested messages
