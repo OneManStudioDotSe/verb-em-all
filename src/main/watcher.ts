@@ -73,12 +73,12 @@ function startSessionWatcher(): void {
   fsWatcher.on('add', handleFileChange)
 }
 
-function startClipboardWatcher(): void {
-  try { lastClipboard = clipboard.readText() } catch { lastClipboard = '' }
+async function startClipboardWatcher(): Promise<void> {
+  try { lastClipboard = await clipboard.readText() } catch { lastClipboard = '' }
 
-  clipboardTimer = setInterval(() => {
+  clipboardTimer = setInterval(async () => {
     let current: string
-    try { current = clipboard.readText() } catch { return }
+    try { current = await clipboard.readText() } catch { return }
     if (!current || current === lastClipboard || current.length < 10) return
     lastClipboard = current
     const found = detectWords(current)
