@@ -1,5 +1,7 @@
 # Verb 'em all — Feature Ideas Backlog
 
+Ideas marked **(DONE)** are shipped; see the README for how they work. Everything else is open.
+
 Brainstormed during Session 1 (2026-04-01). These are creative, bold, and sometimes weird ideas for future versions of the app. Organized by theme.
 
 ---
@@ -19,7 +21,7 @@ The creature's mood affects the app's color scheme. Happy creature = warm yellow
 
 ## 📅 Daily Rituals
 
-### Daily Verb of the Day (DONE)
+### Daily Verb of the Day
 Each day, a random uncaught verb is highlighted with a "Today's Hunt" badge. Catching it within 24h awards bonus XP or a special golden badge. Resets at midnight.
 
 ### Streak Tracker
@@ -55,7 +57,7 @@ Minigame: given a starting verb and an ending verb, construct a chain of verbs w
 ### Collaborative Leaderboard
 Optional cloud sync (privacy-first, anonymous by default). See global catch counts — how many people worldwide have caught "Orchestrating" today. Show trending verbs.
 
-### Share Card Generator
+### Share Card Generator (DONE)
 One-click "Share my progress" button that generates a beautiful PNG card: your caught count, top 3 most-caught words, Verbagotchi level, and a QR code linking to the app. Shareable to social media.
 
 ### "Word of the Day" Email/Notification
@@ -65,16 +67,16 @@ Daily push notification (macOS native) with one uncaught verb and its definition
 
 ## ✨ Visual & UX Polish
 
-### Dark / Light / Solarized Themes
+### Dark / Light / Solarized Themes (PARTLY DONE — a second "Claude" theme ships; no light or solarized variant)
 Toggle between dark (current neo-brutal), light neo-brutal, and a solarized retro palette. Theme selection saved to preferences.
 
-### Customizable Accent Color
+### Customizable Accent Color (DONE)
 Let users pick their primary accent from a curated palette. The word cards and celebration overlay adopt the chosen color throughout.
 
 ### Typewriter Mode
 When you open the catch modal, your note appears letter-by-letter with a typewriter sound effect (optional, togglable).
 
-### History Timeline
+### History Timeline (DONE)
 A dedicated "Timeline" tab showing all catches in chronological order — a diary of your vocabulary journey. Scroll back through time to see when you first caught "Bootstrapping."
 
 ### Animated Word Reveal
@@ -135,7 +137,7 @@ A random 3–5 verbs per week are flagged "ENDANGERED" — pulsing red border, c
 
 ## 🌌 Visual Reinvention
 
-### Verb Constellation Map
+### Verb Constellation Map (DONE — the "Cosmos" tab)
 Replace (or complement) the flat word grid with a zoomable, draggable star map. Caught verbs become lit stars; categories form named constellations. The Verbagotchi roams between them. Uncaught words are dim distant stars. Changes the entire spatial metaphor of the app.
 
 ### Verb Rune Tattoo System
@@ -172,5 +174,5 @@ Unlocks at 50 catches: combine any two caught verbs into a fictional hybrid — 
 
 ## 🔊 Sensory Design
 
-### Sound Signature per Word
+### Sound Signature per Word (DONE)
 Each category gets a distinct ambient drone layer when browsing. Catching a word plays a short procedurally-shaped audio event — tone derived from the word's character codes, shaped by category. Built with Web Audio API, no assets required. Silent by default, toggleable. Would make verb-em-all the first word-collection app with its own sonic identity.

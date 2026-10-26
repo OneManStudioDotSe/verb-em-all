@@ -1,100 +1,104 @@
-# Running & Building
+# Running, building and releasing
 
 ## Prerequisites
 
-- **Node.js** 18 or later ([nodejs.org](https://nodejs.org))
-- **npm** 9 or later (bundled with Node.js)
+- **Node.js** 20 or later and **npm** 10 or later
 - **Git**
-
-For **Windows builds on Mac** (cross-compilation): install Wine via Homebrew:
-```bash
-brew install --cask wine-stable
-```
+- macOS for the DMG build (electron-builder can only sign and build DMGs on a Mac)
+- For Windows installers built on a Mac: Wine (`brew install --cask wine-stable`)
 
 ---
 
 ## Development
 
 ```bash
-# Install dependencies (first time only)
 npm install
-
-# Start in development mode (hot-reload)
 npm run dev
 ```
 
-The app opens automatically. Changes to renderer code (React components, CSS) reload instantly via HMR. Changes to main process code require a restart.
+The app opens automatically. Renderer changes (React, CSS) hot-reload; main-process changes
+need a restart.
+
+> **"Error: Electron uninstall" on `npm run dev`.** Recent npm versions (11.20+) refuse to run
+> package install scripts until you approve them, so the Electron binary is never downloaded.
+> Fix it once with:
+>
+> ```bash
+> npm install-scripts approve electron esbuild fsevents electron-winstaller
+> npm rebuild electron
+> ```
 
 ---
 
-## Type Checking
+## Type checking
 
 ```bash
-# Check all TypeScript (main + renderer)
-npm run typecheck
-
-# Check only main process / preload
-npm run typecheck:node
-
-# Check only renderer
-npm run typecheck:web
+npm run typecheck        # main + preload, then renderer
+npm run typecheck:node   # main + preload only
+npm run typecheck:web    # renderer only
 ```
+
+There is no test suite yet. `npm run typecheck` and `npm run build` are the verification bar,
+plus `npm run package:mac` for anything that touches packaging.
 
 ---
 
-## Production Build
-
-Compiles TypeScript and bundles everything without packaging:
+## Production build
 
 ```bash
-npm run build
-```
-
-Output goes to `out/`. Preview the production renderer build:
-
-```bash
-npm run preview
+npm run build      # → out/main, out/preload, out/renderer
+npm run preview    # preview the production renderer bundle
 ```
 
 ---
 
 ## Packaging
 
-### Mac (DMG — Intel + Apple Silicon)
+### macOS (DMG, Apple Silicon + Intel)
 
 ```bash
 npm run package:mac
 ```
 
-Produces:
+Produces in `dist-release/`:
+
 ```
-dist-release/
-  Verb 'em all-1.0.0-arm64.dmg   (Apple Silicon)
-  Verb 'em all-1.0.0.dmg          (Intel)
+Verb 'em all-1.0.0-arm64.dmg
+Verb 'em all-1.0.0-x64.dmg
 ```
 
-**Requirements:**
-- Must run on macOS
-- `resources/icon.png` must exist (1024×1024 px, PNG)
-- For notarization (distributing outside App Store), you need an Apple Developer account and code signing setup in `electron-builder.yml`
+What happens, driven by `electron-builder.yml`:
 
-### Windows (NSIS Installer)
+- `out/**` is packed into the asar; `resources/icon.png` and `resources/tray-icon.png` are
+  copied next to it via `extraResources` (the app reads them with `process.resourcesPath`).
+- The app is signed with the hardened runtime and `resources/entitlements.mac.plist`, using
+  whatever signing identity electron-builder finds in your keychain. A Developer ID
+  Application certificate produces a distributable build; an Apple Development certificate
+  (or none at all) produces a build that runs locally but that Gatekeeper rejects on other
+  machines until the user right-clicks → Open. To build unsigned on purpose:
+  `CSC_IDENTITY_AUTO_DISCOVERY=false npm run package:mac`.
+- Notarization runs only when `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD` and `APPLE_TEAM_ID`
+  are set; otherwise electron-builder logs "skipped macOS notarization" and continues.
+
+To notarize locally:
 
 ```bash
-npm run package:win
+export APPLE_ID="you@example.com"
+export APPLE_APP_SPECIFIC_PASSWORD="xxxx-xxxx-xxxx-xxxx"   # from appleid.apple.com
+export APPLE_TEAM_ID="XXXXXXXXXX"
+npm run package:mac
 ```
 
-Produces:
-```
-dist-release/
-  Verb 'em all Setup 1.0.0.exe
+### Windows (NSIS installer)
+
+```bash
+npm run package:win      # → dist-release/Verb 'em all-1.0.0-x64.exe
 ```
 
-**Requirements:**
-- `resources/icon.ico` must exist (multi-size ICO file)
-- Can be built on macOS (requires Wine, see Prerequisites above)
+`resources/icon.ico` is already in the repo. The installer is unsigned; Windows SmartScreen
+will warn until the project has a code-signing certificate. The tray menu is macOS-only.
 
-### Both platforms
+### Both
 
 ```bash
 npm run package:all
@@ -102,28 +106,57 @@ npm run package:all
 
 ---
 
-## App Icon
+## Releasing to GitHub
 
-Before packaging, add your icon files to `resources/`:
+`.github/workflows/release.yml` builds the macOS DMGs and attaches them to a GitHub Release
+whenever a `v*` tag is pushed:
 
-| File | Format | Size | Used for |
-|---|---|---|---|
-| `resources/icon.png` | PNG | 1024×1024 | Mac DMG |
-| `resources/icon.ico` | ICO | Multi-size (16/32/48/256) | Windows installer + taskbar |
-
-To convert a PNG to ICO on Mac:
 ```bash
-brew install imagemagick
-convert icon.png -define icon:auto-resize=256,128,64,48,32,16 icon.ico
+# 1. bump "version" in package.json, commit
+# 2. tag and push
+git tag v1.0.0
+git push origin main --tags
 ```
+
+The workflow runs typecheck and build, then `electron-builder --mac`, then creates the release
+with auto-generated notes (or uploads to it if it already exists). `ci.yml` runs typecheck and
+build on every push and pull request.
+
+### Optional: signed and notarized releases
+
+Add these repository secrets and the same workflow produces a notarized build:
+
+| Secret | Value |
+|---|---|
+| `MAC_CERT_P12` | Base64 of your Developer ID Application `.p12` (`base64 -i cert.p12 \| pbcopy`) |
+| `MAC_CERT_PASSWORD` | The `.p12` password |
+| `APPLE_ID` | Apple ID email |
+| `APPLE_APP_SPECIFIC_PASSWORD` | App-specific password for that Apple ID |
+| `APPLE_TEAM_ID` | 10-character team ID |
+
+Without them the workflow sets `CSC_IDENTITY_AUTO_DISCOVERY=false` and ships an unsigned DMG;
+say so in the release notes so users know to right-click → Open (the README explains it).
 
 ---
 
-## Where User Data Lives
+## App icon
+
+| File | Format | Size | Used for |
+|---|---|---|---|
+| `resources/icon.png` | PNG | 512×512 (1024 recommended) | macOS icns, dev dock icon |
+| `resources/icon.ico` | ICO | 16–256 px | Windows installer and taskbar |
+| `resources/tray-icon.png` | PNG, grayscale + alpha | 512×512, rendered at 18 px | macOS tray template image |
+
+To regenerate the ICO from the PNG without ImageMagick: resize with `sips -z N N` for
+256/128/64/48/32/16 and pack the PNGs into an ICO (the format accepts PNG frames directly).
+
+---
+
+## Where user data lives
 
 | Platform | Path |
 |---|---|
-| Mac | `~/Library/Application Support/verb-em-all/verb-data.json` |
+| macOS | `~/Library/Application Support/verb-em-all/verb-data.json` |
 | Windows | `%APPDATA%\verb-em-all\verb-data.json` |
 | Linux | `~/.config/verb-em-all/verb-data.json` |
 
@@ -131,10 +164,13 @@ Data survives app updates. To reset, delete `verb-data.json`.
 
 ---
 
-## Environment Variables
+## Environment variables
 
 | Variable | Description |
 |---|---|
-| `ELECTRON_RENDERER_URL` | Set automatically by electron-vite in dev mode — points renderer at Vite dev server |
+| `ELECTRON_RENDERER_URL` | Set by electron-vite in dev mode; points the window at the Vite dev server |
+| `CSC_IDENTITY_AUTO_DISCOVERY` | Set to `false` to skip macOS signing |
+| `CSC_LINK`, `CSC_KEY_PASSWORD` | Signing certificate for CI builds |
+| `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` | Enable notarization |
 
-No `.env` file needed.
+No `.env` file is used.
