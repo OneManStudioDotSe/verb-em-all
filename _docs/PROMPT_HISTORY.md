@@ -99,3 +99,9 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 > - When switching to the "Cosmos" tab, use an animation for showing and hiding UI components so that they don't just look like "jumping" into their new position
 > - Make sure that the number (i.e. 7) shows up always next to the text of the button (CAUGHT, TIMELINE, etc)
 > - At the "tamagotchi"-style pet at the right side, position its UI elements more aligned and use different font size to indicate the importance of each piece of text
+
+**Prompt 18**
+> It seems that things are not working well when I am using iTerm or VSCode's integrated terminal. The verbs shown at the claude sessions are not caught and only "working" is caught, and that when it is shown at the list of tabs inside iterm. Please fix these
+
+**Prompt 19**
+> Also, many verbs like "Discombobulating", "Scurrying" and even more are not caught!

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { detectWords, extractTextFromJsonlLine } from '../src/main/detector'
+import { detectWords, detectSpinnerVerbs, extractTextFromJsonlLine } from '../src/main/detector'
 import { WORDS } from '../src/renderer/src/data/words'
 
 const sample = WORDS.find((w) => w.word.length >= 6)!
@@ -47,5 +47,30 @@ describe('extractTextFromJsonlLine', () => {
 
   it('returns non-JSON lines unchanged', () => {
     expect(extractTextFromJsonlLine('plain text')).toBe('plain text')
+  })
+})
+
+describe('detectSpinnerVerbs', () => {
+  // Bytes recorded from a real Claude Code session
+  const whirring = '\x1b[H\r\x1b[2C\x1b[17B\x1b[38;2;215;119;87mWhirring\x1b[38;2;235;159;127m…\x1b[38;2;215;119;87m \x1b'
+  const bootstrapping = '\x1b[49m\x1b[38;2;215;119;87m·\x1b[3GBootstrapping… \r\x1b[62C'
+
+  it('finds verbs split by colour codes or after the spinner glyph', () => {
+    expect(detectSpinnerVerbs(whirring + bootstrapping).sort()).toEqual(['bootstrapping', 'whirring'])
+  })
+
+  it('handles apostrophes and ignores case', () => {
+    expect(detectSpinnerVerbs("✻ BEBOPPIN'…")).toEqual(['beboppin'])
+  })
+
+  it('needs the ellipsis and a whole known verb', () => {
+    expect(detectSpinnerVerbs('Whirring along')).toEqual([])
+    expect(detectSpinnerVerbs('\x1b[11G\x1b[38;2;215;119;87mr…')).toEqual([])
+    expect(detectSpinnerVerbs('Loading…')).toEqual([])
+  })
+
+  it('does not glue text across cursor moves or titles', () => {
+    expect(detectSpinnerVerbs('Whir\x1b[5Gring…')).toEqual([])
+    expect(detectSpinnerVerbs('\x1b]0;Whir\x07ring…')).toEqual([])
   })
 })

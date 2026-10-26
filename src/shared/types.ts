@@ -44,6 +44,7 @@ export interface ClaudeStatus {
   found: boolean      // ~/.claude/projects exists and holds at least one transcript
   transcripts: number // .jsonl files seen (capped scan)
   dir: string
+  recording: number   // terminal sessions currently recorded for spinner verbs
 }
 
 export interface WordViewModel extends WordItem {

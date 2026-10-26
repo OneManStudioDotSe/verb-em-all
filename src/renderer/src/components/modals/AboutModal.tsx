@@ -48,8 +48,8 @@ export function AboutModal({ onClose }: AboutModalProps): React.JSX.Element {
           <h3>Privacy</h3>
           <p>
             Everything stays on this computer. Your catches live in a local JSON file, and the
-            optional session monitoring reads your Claude Code transcripts and clipboard locally
-            without sending anything anywhere.
+            optional session monitoring reads your Claude Code transcripts, clipboard and (if you
+            set it up) terminal output locally without sending anything anywhere.
           </p>
         </div>
 

@@ -4,7 +4,7 @@ import { is } from '@electron-toolkit/utils'
 import { registerIpcHandlers, applyDockVisibility } from './ipc'
 import { buildAppMenu } from './menu'
 import { createTray } from './tray'
-import { startMonitoring } from './watcher'
+import { startMonitoring, stopMonitoring } from './watcher'
 import { store } from './store'
 import { resourcePath } from './resources'
 
@@ -56,6 +56,8 @@ function createWindow(): BrowserWindow {
 
 app.on('before-quit', () => {
   isQuitting = true
+  // Removes the terminal recorder so nothing is recorded while the app is closed
+  stopMonitoring()
 })
 
 app.whenReady().then(() => {

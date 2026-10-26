@@ -165,9 +165,19 @@ Monitoring enabled (header ○ button)
       → extractTextFromJsonlLine() pulls text + thinking blocks
       → detectWords() runs one pre-compiled regex per verb (words ≥ 5 chars)
   → clipboard polled every 2 s: clipboard.readText() → detectWords()
+  → writes ~/.verb-em-all/record.exp (expect script), polls ~/.verb-em-all/tty/*.log every 1 s:
+      read + truncate each log → detectSpinnerVerbs() strips ANSI codes, matches "Verb…"
   → new IDs sent once per session via 'words:detected'
   → DetectionPanel shows them for quick catching
 ```
+
+Spinner verbs ("Whirring…") are only drawn in the terminal, never written to transcripts. The
+user opts in with a `claude` shell function (shown in `ClaudeHelpModal`) that runs interactive
+sessions through `expect -f ~/.verb-em-all/record.exp claude …` when the script exists. The
+script relays the session through a pseudo-terminal, forwards window resizes (macOS `script`
+does not, which garbles the TUI) and appends the output to `tty/<pid>.log`, deleting it on exit.
+Logs are opened in append mode, so the app can truncate them mid-session. `stopMonitoring()`
+(also called on quit) deletes the script and the `tty/` folder, so new sessions run unrecorded.
 
 The header's **Claude indicator** calls `monitor:getClaudeStatus` on load and every 30 s. It
 scans `~/.claude/projects/*/` for `.jsonl` transcripts (stops at 50) and shows green when any
@@ -201,7 +211,7 @@ CatchEvent      // { caughtAt: ISO8601, note: string }
 CaughtRecord    // { wordId, catchCount, history: CatchEvent[] }
 VerbagotchiData // { criticalSince: string | null }
 StorageSchema   // { caught, monitoringEnabled, verbagotchi, accentColor, theme, hideDock }
-ClaudeStatus    // { found, transcripts, dir } — result of scanning ~/.claude/projects
+ClaudeStatus    // { found, transcripts, dir, recording } — ~/.claude/projects scan + recorded terminal sessions
 WordViewModel   // WordItem + isCaught, catchCount, latestCatchDate, history
 ```
 
@@ -226,7 +236,7 @@ WordViewModel   // WordItem + isCaught, catchCount, latestCatchDate, history
 | `settings:getAccentColor` / `settings:setAccentColor` | renderer → main | `string` / `void` |
 | `settings:getTheme` / `settings:setTheme` | renderer → main | `string` / `void` |
 | `settings:getHideDock` / `settings:setHideDock` | renderer → main | `boolean` (macOS: hides/shows the Dock icon) |
-| `monitor:getClaudeStatus` | renderer → main | `ClaudeStatus` (`found`, `transcripts`, `dir`) |
+| `monitor:getClaudeStatus` | renderer → main | `ClaudeStatus` (`found`, `transcripts`, `dir`, `recording`) |
 | `menu:showHowToUse`, `menu:showAbout` | main → renderer | — |
 | `verb:caught-from-tray` | main → renderer | `wordId, CaughtRecord` |
 | `words:detected` | main → renderer | `string[]` (word IDs) |

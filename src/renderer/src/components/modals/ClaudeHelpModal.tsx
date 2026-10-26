@@ -1,5 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import type { ClaudeStatus } from '../../../../shared/types'
+
+// Runs `claude` through the app's recorder when it is installed (monitoring on) and the
+// session is interactive; otherwise it is plain `claude`.
+const SHELL_FUNCTION = `claude() {
+  if [ -t 0 ] && [ -t 1 ] && [ -f ~/.verb-em-all/record.exp ]; then
+    expect -f ~/.verb-em-all/record.exp claude "$@"
+  else
+    command claude "$@"
+  fi
+}`
 
 interface ClaudeHelpModalProps {
   status: ClaudeStatus
@@ -8,6 +18,12 @@ interface ClaudeHelpModalProps {
 }
 
 export function ClaudeHelpModal({ status, onClose, onRecheck }: ClaudeHelpModalProps): React.JSX.Element {
+  const [copied, setCopied] = useState(false)
+
+  const copyShellFunction = (): void => {
+    navigator.clipboard.writeText(SHELL_FUNCTION).then(() => setCopied(true))
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal modal-info" onClick={(e) => e.stopPropagation()}>
@@ -66,6 +82,28 @@ export function ClaudeHelpModal({ status, onClose, onRecheck }: ClaudeHelpModalP
             </div>
           </>
         )}
+
+        <div className="modal-section">
+          <h3>Catch spinner verbs</h3>
+          <p>
+            The verbs Claude Code shows while it works (<em>Discombobulating…</em>) are only
+            drawn in the terminal, never saved to transcripts. To catch them, add this to your{' '}
+            <code>~/.zshrc</code> or <code>~/.bashrc</code> and open a new terminal tab:
+          </p>
+          <pre className="modal-code">{SHELL_FUNCTION}</pre>
+          <button className="btn" onClick={copyShellFunction}>{copied ? 'Copied' : 'Copy'}</button>
+          <p style={{ marginTop: 8 }}>
+            It works in iTerm, Terminal and VS Code. While monitoring is on, each{' '}
+            <code>claude</code> session's screen output goes to a temporary file in{' '}
+            <code>~/.verb-em-all</code> that the app reads and empties every second. Turning
+            monitoring off or quitting the app deletes it, and new sessions run unrecorded.
+          </p>
+          <p style={{ marginTop: 8 }}>
+            {status.recording > 0
+              ? `Recording ${status.recording} terminal session${status.recording === 1 ? '' : 's'} now.`
+              : 'No terminal session is being recorded right now.'}
+          </p>
+        </div>
 
         <div className="modal-actions">
           <button className="btn" onClick={onRecheck}>Check again</button>
