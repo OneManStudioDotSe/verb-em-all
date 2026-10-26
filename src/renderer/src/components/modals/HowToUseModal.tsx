@@ -77,7 +77,9 @@ export function HowToUseModal({ onClose }: HowToUseModalProps): React.JSX.Elemen
           <p>
             Click <strong style={C}>○</strong> in the header to monitor your Claude Code session
             transcripts and clipboard. Matching verbs show up in a panel above the list for one-click
-            catching. Everything is read locally; nothing leaves your computer.
+            catching. Everything is read locally; nothing leaves your computer. The{' '}
+            <strong style={C}>claude</strong> pill next to it is green when transcripts are found;
+            click it for help if it is red.
           </p>
         </div>
 
@@ -87,6 +89,7 @@ export function HowToUseModal({ onClose }: HowToUseModalProps): React.JSX.Elemen
             <li><strong style={Y}>≡</strong> opens Statistics, the Share Card, Accent Color and Theme.</li>
             <li><strong style={Y}>♪</strong> turns on procedural sound: each verb has its own signature.</li>
             <li>On macOS, the ⚡ tray icon offers a Quick Catch menu without opening the window.</li>
+            <li>Prefer a menu-bar-only app? Choose <strong style={Y}>Menu Bar Only</strong> in ≡ to hide the Dock icon.</li>
           </ul>
         </div>
 

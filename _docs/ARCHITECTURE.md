@@ -169,6 +169,10 @@ Monitoring enabled (header ○ button)
   → DetectionPanel shows them for quick catching
 ```
 
+The header's **Claude indicator** calls `monitor:getClaudeStatus` on load and every 30 s. It
+scans `~/.claude/projects/*/` for `.jsonl` transcripts (stops at 50) and shows green when any
+exist; red opens `ClaudeHelpModal` with setup instructions and a re-check button.
+
 ### Verbagotchi
 
 - Health = 100 − (hours since last catch / 168) × 100. States: thriving, content, hungry,
@@ -196,7 +200,8 @@ WordItem        // Static: id, word, emoji, description, category, imagePath?
 CatchEvent      // { caughtAt: ISO8601, note: string }
 CaughtRecord    // { wordId, catchCount, history: CatchEvent[] }
 VerbagotchiData // { criticalSince: string | null }
-StorageSchema   // { caught, monitoringEnabled, verbagotchi, accentColor, theme }
+StorageSchema   // { caught, monitoringEnabled, verbagotchi, accentColor, theme, hideDock }
+ClaudeStatus    // { found, transcripts, dir } — result of scanning ~/.claude/projects
 WordViewModel   // WordItem + isCaught, catchCount, latestCatchDate, history
 ```
 
@@ -220,6 +225,8 @@ WordViewModel   // WordItem + isCaught, catchCount, latestCatchDate, history
 | `verbagotchi:saveCriticalSince` | renderer → main | `void` |
 | `settings:getAccentColor` / `settings:setAccentColor` | renderer → main | `string` / `void` |
 | `settings:getTheme` / `settings:setTheme` | renderer → main | `string` / `void` |
+| `settings:getHideDock` / `settings:setHideDock` | renderer → main | `boolean` (macOS: hides/shows the Dock icon) |
+| `monitor:getClaudeStatus` | renderer → main | `ClaudeStatus` (`found`, `transcripts`, `dir`) |
 | `menu:showHowToUse`, `menu:showAbout` | main → renderer | — |
 | `verb:caught-from-tray` | main → renderer | `wordId, CaughtRecord` |
 | `words:detected` | main → renderer | `string[]` (word IDs) |
@@ -240,7 +247,8 @@ electron-store writes `verb-data.json` to the OS config directory:
   "monitoringEnabled": false,
   "verbagotchi": { "criticalSince": null },
   "accentColor": "#f5e642",
-  "theme": "dark"
+  "theme": "dark",
+  "hideDock": false
 }
 ```
 

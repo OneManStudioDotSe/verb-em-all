@@ -89,3 +89,13 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 16**
 > why do we have both Electron and Electron-vite? Are they both needed? I would like a purely native build. Also, if the 2 categories are empty and not used, please go ahead and clean things up. Finally, add some basic tests. At the end, build a dmg, let me know of the folder and I will try to install and use it and test the core functionality
+
+**Prompt 17**
+> ok, I need some fixes to the app:
+> - Make the title bigger and move it futher below its current position as it now looks weird being so close to the 3 top left buttons with close/minimize/full-screen. Also, align the title to the left side
+> - When opening the info, the modal window doesn't fit in the screen of the app. Make sure that the modal is drawn within the visible viewport of the screen and the content is scrollable. Also position correctly the "X" button that closes the modal
+> - Add a small indicator whether the app can detect Claude and therefore monitoring the words from it. If it doesn't make the indicator clickable and show instructions to the user how to fix the issue
+> - Add the ability to hide the app from the dock and show only the icon at the top menu bar of the macOS
+> - When switching to the "Cosmos" tab, use an animation for showing and hiding UI components so that they don't just look like "jumping" into their new position
+> - Make sure that the number (i.e. 7) shows up always next to the text of the button (CAUGHT, TIMELINE, etc)
+> - At the "tamagotchi"-style pet at the right side, position its UI elements more aligned and use different font size to indicate the importance of each piece of text

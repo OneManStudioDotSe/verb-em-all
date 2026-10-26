@@ -65,7 +65,9 @@ npm run package:mac  # or build your own DMG into dist-release/
 | **Sound** | Optional procedural audio (Web Audio, no sound files): a hover tone and a catch "spell" unique to each verb, plus per-category ambient drones in Cosmos |
 | **Accent colour** | 10-colour neo-brutal palette, persisted |
 | **Themes** | Default dark neo-brutal theme and a warm "Claude" theme |
+| **Claude indicator** | Header pill shows whether Claude Code transcripts are visible on this machine; click it for setup help |
 | **macOS tray** | Quick-catch menu for uncaught verbs without opening the window; closing the window hides it to the tray |
+| **Menu bar only** | Optional: hide the Dock icon and live in the menu bar (≡ menu → Menu Bar Only) |
 
 ### Verb categories
 
