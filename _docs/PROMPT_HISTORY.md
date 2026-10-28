@@ -141,3 +141,18 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 31**
 > commit your work
+
+**Prompt 32**
+> the texts at the cards with the verbs that can be caught or are caught are too big and perhaps could be smaller. What do you think?
+
+**Prompt 33**
+> yes, apply the proposed sizes
+
+**Prompt 34**
+> I want to finally publish this project online. Please first verify that it looks well, can run properly from a clean installation, persists the user information between restarts, renders properly and efficiently the "Cosmos" visualization even when zoomed in and then take screenshots of the app so I can put them in the repo's README and on Linkedin
+
+**Prompt 35**
+> also make sure that the user can toggle the app starting automatically when they start their macbook and also give them information or hints how to start monitoring verbs from Claude
+
+**Prompt 36**
+> commit everything

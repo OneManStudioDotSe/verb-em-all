@@ -100,8 +100,6 @@ export function Verbagotchi({ caughtMap, onUncatch }: VerbagotchiProps): React.J
               />
             </div>
             <span className="verbagotchi-collapsed-pct">{health}%</span>
-            <span className="verbagotchi-collapsed-sep">·</span>
-            <span className={`verbagotchi-state-label verbagotchi-state--${state}`}>{STATE_LABEL[state]}</span>
             <button
               className="verbagotchi-chevron"
               onClick={(e) => { e.stopPropagation(); setCollapsed(false) }}

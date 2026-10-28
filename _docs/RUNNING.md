@@ -19,18 +19,10 @@ npm run dev
 The app opens automatically. Renderer changes (React, CSS) hot-reload; main-process changes
 need a restart.
 
-> **"Error: Electron uninstall" on `npm run dev`.** Recent npm versions (11.20+) refuse to run
-> package install scripts until you approve them, so the Electron binary is never downloaded.
-> Fix it once with:
->
-> ```bash
-> npm install-scripts approve electron esbuild fsevents electron-winstaller
-> npm rebuild electron
-> ```
->
-> If `node_modules/electron/dist` is still missing afterwards, run the installer directly:
-> `node node_modules/electron/install.js`. Approval is per Electron version, so repeat this
-> after an Electron upgrade.
+> **Electron binary.** Electron 45 has no install script: `node_modules/electron/dist` is
+> empty after `npm install` and the binary (~100 MB) is downloaded the first time anything
+> loads the `electron` package, so the first `npm run dev` pauses on "Downloading Electron
+> binary...". If that download fails, run `node node_modules/electron/install.js` directly.
 
 ---
 

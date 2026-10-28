@@ -289,8 +289,8 @@ export function ConstellationView({ words, onCatch, onHover, setAmbientCategory 
         className="constellation-svg"
         style={{
           transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          // No will-change: it freezes the layer's raster at 1x, so zooming in looks blurry
           transformOrigin: '0 0',
-          willChange: 'transform',
         }}
       >
         <defs>

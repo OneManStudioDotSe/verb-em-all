@@ -26,6 +26,8 @@ declare global {
       setTheme: (t: string) => Promise<void>
       getHideDock: () => Promise<boolean>
       setHideDock: (hide: boolean) => Promise<boolean>
+      getOpenAtLogin: () => Promise<boolean>
+      setOpenAtLogin: (open: boolean) => Promise<boolean>
       removeAllListeners: (channel: string) => void
     }
   }

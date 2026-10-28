@@ -10,6 +10,8 @@ interface AppMenuButtonProps {
   currentTheme: string
   hideDock: boolean
   onToggleHideDock?: () => void // undefined on non-macOS
+  openAtLogin: boolean
+  onToggleOpenAtLogin: () => void
 }
 
 export function AppMenuButton({
@@ -21,7 +23,9 @@ export function AppMenuButton({
   onToggleTheme,
   currentTheme,
   hideDock,
-  onToggleHideDock
+  onToggleHideDock,
+  openAtLogin,
+  onToggleOpenAtLogin
 }: AppMenuButtonProps): React.JSX.Element {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -72,6 +76,9 @@ export function AppMenuButton({
               {hideDock ? '🖥 Show in Dock' : '⚡ Menu Bar Only'}
             </button>
           )}
+          <button className="app-menu-item" onClick={() => handleItem(onToggleOpenAtLogin)}>
+            {openAtLogin ? '☑ Open at Login' : '☐ Open at Login'}
+          </button>
           <div className="app-menu-divider" />
           <button className="app-menu-item" onClick={() => handleItem(onShowHowToUse)}>
             📖 How to Use

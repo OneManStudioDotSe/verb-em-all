@@ -82,6 +82,16 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     return hide
   })
 
+  // The OS login-items list is the source of truth, so nothing is kept in the store
+  ipcMain.handle('settings:getOpenAtLogin', () => {
+    return app.getLoginItemSettings().openAtLogin
+  })
+
+  ipcMain.handle('settings:setOpenAtLogin', (_event, open: boolean) => {
+    app.setLoginItemSettings({ openAtLogin: open })
+    return app.getLoginItemSettings().openAtLogin
+  })
+
   ipcMain.handle('monitor:getClaudeStatus', () => {
     return getClaudeStatus()
   })

@@ -86,7 +86,8 @@ verb-em-all/
 │           ├── styles/global.css     # All styles; design tokens + theme overrides
 │           ├── data/
 │           │   ├── words.ts          # Hardcoded 193-verb list
-│           │   └── palette.ts        # 10 accent colours with shadow pairs
+│           │   ├── palette.ts        # 10 accent colours with shadow pairs
+│           │   └── sortWords.ts      # Pure sort for the word grid (title, category, catches)
 │           ├── hooks/
 │           │   ├── useStorage.ts     # IPC storage read/write
 │           │   ├── useSearch.ts      # Filtering
@@ -99,6 +100,7 @@ verb-em-all/
 │               ├── CelebrationOverlay.tsx
 │               ├── ConstellationView.tsx # "Cosmos" tab: SVG star map, pan/zoom, creature path
 │               ├── DetectionPanel.tsx    # Auto-detected verbs
+│               ├── MonitorHint.tsx       # How to turn on monitoring, or "listening" while nothing is spotted
 │               ├── EscapeOverlay.tsx     # Verbagotchi escape screen
 │               ├── SearchBox.tsx
 │               ├── SortBar.tsx
@@ -247,6 +249,7 @@ WordViewModel   // WordItem + isCaught, catchCount, latestCatchDate, history
 | `settings:getAccentColor` / `settings:setAccentColor` | renderer → main | `string` / `void` |
 | `settings:getTheme` / `settings:setTheme` | renderer → main | `string` / `void` |
 | `settings:getHideDock` / `settings:setHideDock` | renderer → main | `boolean` (macOS: hides/shows the Dock icon) |
+| `settings:getOpenAtLogin` / `settings:setOpenAtLogin` | renderer → main | `boolean` (OS login item via `app.setLoginItemSettings`; not stored in electron-store) |
 | `monitor:getClaudeStatus` | renderer → main | `ClaudeStatus` (`found`, `transcripts`, `dir`, `recording`, `shellHook`) |
 | `monitor:setShellHook` | renderer → main | `boolean` (adds/removes the `claude` function in shell profiles; returns whether it is installed) |
 | `menu:showHowToUse`, `menu:showAbout` | main → renderer | — |

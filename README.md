@@ -58,7 +58,7 @@ npm run package:mac  # or build your own DMG into dist-release/
 | **Celebration** | Full-screen confetti on every catch |
 | **Auto-detection** | Watches `~/.claude/projects/**/*.jsonl` and the clipboard (every 2 s) for matching verbs |
 | **Spinner verbs** | Catches the verbs Claude Code shows while it works ("Discombobulating…") in iTerm, Terminal or VS Code. They are never written to transcripts, so with your consent the app adds a `claude` function to `~/.zshrc` (and `~/.bashrc`) that runs sessions through a small `expect` recorder. Remove it with one click from the Claude indicator |
-| **Detection panel** | Spotted verbs appear above the list for one-click catching, catch-all or dismiss. Verbs you already have get an outlined **↻ Again** button and their own **Catch all again** |
+| **Detection panel** | Spotted verbs appear above the list for one-click catching, catch-all or dismiss. Verbs you already have get an outlined **↻ Again** button and their own **Catch all again**. While monitoring is off, a dismissible hint in its place explains how to turn it on; while it is on and nothing is spotted yet, a line confirms it is listening |
 | **Verbagotchi** | ASCII creature with four evolution stages. Health drains over seven days without a catch; after 24 h in critical condition it escapes with one of your verbs |
 | **Timeline** | Day-grouped diary of every catch and note, searchable |
 | **Cosmos** | Zoomable, draggable star map of all verbs grouped into named constellations by category; caught verbs shine and the creature roams between them |
@@ -70,6 +70,7 @@ npm run package:mac  # or build your own DMG into dist-release/
 | **Claude indicator** | Header pill shows whether Claude Code transcripts are visible on this machine; click it for setup help |
 | **macOS tray** | Quick-catch menu for uncaught verbs without opening the window; closing the window hides it to the tray |
 | **Menu bar only** | Optional: hide the Dock icon and live in the menu bar (≡ menu → Menu Bar Only) |
+| **Open at login** | Optional: start the app when you log in (≡ menu → Open at Login). Uses the system login-items list, so it also shows in System Settings → General → Login Items |
 
 ### Verb categories
 

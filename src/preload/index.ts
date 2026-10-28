@@ -60,6 +60,10 @@ const electronAPI = {
   getHideDock: (): Promise<boolean> => ipcRenderer.invoke('settings:getHideDock'),
   setHideDock: (hide: boolean): Promise<boolean> => ipcRenderer.invoke('settings:setHideDock', hide),
 
+  // Launch at login
+  getOpenAtLogin: (): Promise<boolean> => ipcRenderer.invoke('settings:getOpenAtLogin'),
+  setOpenAtLogin: (open: boolean): Promise<boolean> => ipcRenderer.invoke('settings:setOpenAtLogin', open),
+
   // Cleanup
   removeAllListeners: (channel: string): void => {
     ipcRenderer.removeAllListeners(channel)

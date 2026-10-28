@@ -91,6 +91,7 @@ export function HowToUseModal({ onClose }: HowToUseModalProps): React.JSX.Elemen
             <li><strong style={Y}>♪</strong> turns on procedural sound: each verb has its own signature.</li>
             <li>On macOS, the ⚡ tray icon offers a Quick Catch menu without opening the window.</li>
             <li>Prefer a menu-bar-only app? Choose <strong style={Y}>Menu Bar Only</strong> in ≡ to hide the Dock icon.</li>
+            <li>Want it ready when you start your computer? Tick <strong style={Y}>Open at Login</strong> in ≡.</li>
           </ul>
         </div>
 

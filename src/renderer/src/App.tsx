@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import type { WordViewModel, ClaudeStatus } from '../../shared/types'
 import { WORDS } from './data/words'
 import { findAccentEntry } from './data/palette'
+import { sortWords } from './data/sortWords'
 import { useStorage } from './hooks/useStorage'
 import { useSoundEngine } from './hooks/useSoundEngine'
 import { useSearch } from './hooks/useSearch'
@@ -13,6 +14,7 @@ import { CelebrationOverlay } from './components/CelebrationOverlay'
 import { SortBar, type SortConfig } from './components/SortBar'
 import { AppMenuButton } from './components/AppMenuButton'
 import { DetectionPanel } from './components/DetectionPanel'
+import { MonitorHint } from './components/MonitorHint'
 import { Verbagotchi } from './components/Verbagotchi'
 import { TimelineView } from './components/TimelineView'
 import { ConstellationView } from './components/ConstellationView'
@@ -25,20 +27,6 @@ import { ClaudeHelpModal } from './components/modals/ClaudeHelpModal'
 import { ShellHookModal } from './components/modals/ShellHookModal'
 
 const CLAUDE_STATUS_INTERVAL_MS = 30_000
-
-function sortWords(words: WordViewModel[], config: SortConfig): WordViewModel[] {
-  return [...words].sort((a, b) => {
-    let cmp = 0
-    if (config.field === 'title') {
-      cmp = a.word.localeCompare(b.word)
-    } else if (config.field === 'category') {
-      cmp = a.category.localeCompare(b.category) || a.word.localeCompare(b.word)
-    } else if (config.field === 'catches') {
-      cmp = b.catchCount - a.catchCount || a.word.localeCompare(b.word)
-    }
-    return config.dir === 'asc' ? cmp : -cmp
-  })
-}
 
 function applyAccentColor(color: string): void {
   const entry = findAccentEntry(color)
@@ -62,6 +50,7 @@ export default function App(): React.JSX.Element {
   const [accentColor, setAccentColor] = useState('#f5e642')
   const [theme, setTheme] = useState('dark')
   const [hideDock, setHideDock] = useState(false)
+  const [openAtLogin, setOpenAtLogin] = useState(false)
   const [claudeStatus, setClaudeStatus] = useState<ClaudeStatus | null>(null)
   const [showClaudeHelp, setShowClaudeHelp] = useState(false)
   const [showShellHook, setShowShellHook] = useState(false)
@@ -100,6 +89,10 @@ export default function App(): React.JSX.Element {
   // Dock visibility (macOS)
   useEffect(() => {
     window.electronAPI.getHideDock().then(setHideDock)
+  }, [])
+
+  useEffect(() => {
+    window.electronAPI.getOpenAtLogin().then(setOpenAtLogin)
   }, [])
 
   // Can we see Claude Code transcripts? Re-check periodically.
@@ -151,6 +144,10 @@ export default function App(): React.JSX.Element {
   async function handleHideDockToggle(): Promise<void> {
     const next = await window.electronAPI.setHideDock(!hideDock)
     setHideDock(next)
+  }
+
+  async function handleOpenAtLoginToggle(): Promise<void> {
+    setOpenAtLogin(await window.electronAPI.setOpenAtLogin(!openAtLogin))
   }
 
   function handleThemeToggle(): void {
@@ -290,6 +287,8 @@ export default function App(): React.JSX.Element {
             currentTheme={theme}
             hideDock={hideDock}
             onToggleHideDock={isMac ? handleHideDockToggle : undefined}
+            openAtLogin={openAtLogin}
+            onToggleOpenAtLogin={handleOpenAtLoginToggle}
           />
         </div>
       </header>
@@ -330,13 +329,19 @@ export default function App(): React.JSX.Element {
               <>
                 <SortBar config={sortConfig} activeTab={activeTab} onChange={setSortConfig} />
 
-                {monitoringEnabled && (
+                {monitoringEnabled && detectedViewModels.length > 0 ? (
                   <DetectionPanel
                     detectedWords={detectedViewModels}
                     onCatch={(word) => setCatchingWord(word)}
                     onCatchAll={handleCatchAll}
                     onDismiss={(id) => setDetectedIds((prev) => prev.filter((x) => x !== id))}
                     onDismissAll={() => setDetectedIds([])}
+                  />
+                ) : (
+                  <MonitorHint
+                    monitoringEnabled={monitoringEnabled}
+                    onTurnOn={toggleMonitoring}
+                    onShowHelp={() => setShowClaudeHelp(true)}
                   />
                 )}
 
