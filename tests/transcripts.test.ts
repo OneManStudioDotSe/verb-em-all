@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { mkdtempSync, mkdirSync, writeFileSync, utimesSync, rmSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { recentTranscripts, readTail } from '../src/main/transcripts'
+import { recentTranscripts, readTail, scanTranscripts } from '../src/main/transcripts'
 
 let dir: string
 const now = Date.now()
@@ -48,5 +48,34 @@ describe('readTail', () => {
 
   it('returns an empty string for a missing file', () => {
     expect(readTail(join(dir, 'missing.jsonl'), 10)).toBe('')
+  })
+})
+
+describe('scanTranscripts', () => {
+  const said = (text: string): string =>
+    JSON.stringify({ type: 'assistant', message: { content: [{ type: 'text', text }] } }) + '\n'
+  // Tool output is not something Claude said, so its words are not detected
+  const toolOutput = (text: string): string =>
+    JSON.stringify({ type: 'user', message: { content: [{ type: 'tool_result', content: text }] } }) + '\n'
+
+  it('finds verbs Claude wrote in recently active sessions only', () => {
+    const scan = mkdtempSync(join(tmpdir(), 'verb-scan-'))
+    mkdirSync(join(scan, 'project'))
+    touch(join(scan, 'project', 'live.jsonl'), 60_000, said('Still kerfuffling with the config loader.'))
+    touch(join(scan, 'project', 'old.jsonl'), 3 * 3600_000, said('A hullaballooing build this morning.'))
+    const { verbs, files } = scanTranscripts(scan, now - 3600_000, 64 * 1024)
+    expect(verbs).toEqual(['kerfuffling'])
+    expect(files.map((f) => f.slice(scan.length))).toEqual(['/project/live.jsonl'])
+    rmSync(scan, { recursive: true, force: true })
+  })
+
+  it('does not misread a line cut off by the tail limit as plain text', () => {
+    const scan = mkdtempSync(join(tmpdir(), 'verb-scan-'))
+    const last = said('Now kerfuffling.')
+    // Read whole, this tool-output line is JSON and ignored; cut in half it would look like text
+    touch(join(scan, 'cut.jsonl'), 0, toolOutput('x'.repeat(500) + ' Flibbertigibbeting') + last)
+    expect(scanTranscripts(scan, now - 60_000, 1024 * 1024).verbs).toEqual(['kerfuffling'])
+    expect(scanTranscripts(scan, now - 60_000, last.length + 40).verbs).toEqual(['kerfuffling'])
+    rmSync(scan, { recursive: true, force: true })
   })
 })

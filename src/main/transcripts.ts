@@ -1,5 +1,6 @@
 import { readdirSync, statSync, openSync, readSync, closeSync } from 'fs'
 import { join } from 'path'
+import { detectWords, extractTextFromJsonlLine } from './detector'
 
 /** Transcript files (.jsonl) modified at or after `since` (ms epoch), up to `depth` levels below `dir`. */
 export function recentTranscripts(dir: string, since: number, depth = 3): string[] {
@@ -31,4 +32,15 @@ export function readTail(filePath: string, bytes: number): string {
   } catch {
     return ''
   }
+}
+
+/** Verbs in the last `tailBytes` of each transcript modified since `since`, and the files read. */
+export function scanTranscripts(dir: string, since: number, tailBytes: number): { verbs: string[]; files: string[] } {
+  const files = recentTranscripts(dir, since)
+  const verbs = new Set<string>()
+  for (const file of files) {
+    const text = readTail(file, tailBytes).split('\n').map(extractTextFromJsonlLine).join('\n')
+    detectWords(text).forEach((id) => verbs.add(id))
+  }
+  return { verbs: [...verbs], files }
 }

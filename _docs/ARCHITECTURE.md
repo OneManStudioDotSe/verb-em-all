@@ -71,6 +71,7 @@ verb-em-all/
 │   │   ├── watcher.ts        # Claude session file + clipboard monitoring
 │   │   ├── detector.ts       # Word detection regex engine
 │   │   ├── transcripts.ts    # Recently active transcripts + tail reads (startup scan)
+│   │   ├── recorder.ts       # The expect relay script for spinner verbs (tested in tests/recorder.test.ts)
 │   │   └── resources.ts      # resourcePath(): dev vs packaged location of runtime assets
 │   ├── preload/
 │   │   └── index.ts          # contextBridge → window.electronAPI
