@@ -56,8 +56,8 @@ npm run package:mac  # or build your own DMG into dist-release/
 | **Catch & release** | Catch with an optional note; every catch is kept in a per-verb history. Release a verb from the Caught tab |
 | **Live search & sort** | Filter by name, definition or category; sort by title, category or catch count |
 | **Celebration** | Full-screen confetti on every catch |
-| **Auto-detection** | Watches `~/.claude/projects/**/*.jsonl` and the clipboard (every 2 s) for matching verbs |
-| **Spinner verbs** | Catches the verbs Claude Code shows while it works ("Discombobulating…") in iTerm, Terminal or VS Code. They are never written to transcripts, so with your consent the app adds a `claude` function to `~/.zshrc` (and `~/.bashrc`) that runs sessions through a small `expect` recorder. Remove it with one click from the Claude indicator |
+| **Auto-detection** | Watches `~/.claude/projects/**/*.jsonl` and the clipboard (every 2 s) for matching verbs. When monitoring starts it also reads the end of transcripts active in the last hour, so sessions already running are caught |
+| **Spinner verbs** | Catches the verbs Claude Code shows while it works ("Discombobulating…") in iTerm, Terminal or VS Code. They are never written to transcripts, so with your consent the app adds a `claude` function to `~/.zshrc` (and `~/.bashrc`) that runs sessions through a small `expect` relay, which records only while the app is monitoring. Sessions started while the app was closed are caught as soon as it opens. Remove it with one click from the Claude indicator |
 | **Detection panel** | Spotted verbs appear above the list for one-click catching, catch-all or dismiss. Verbs you already have get an outlined **↻ Again** button and their own **Catch all again**. While monitoring is off, a dismissible hint in its place explains how to turn it on; while it is on and nothing is spotted yet, a line confirms it is listening |
 | **Verbagotchi** | ASCII creature with four evolution stages. Health drains over seven days without a catch; after 24 h in critical condition it escapes with one of your verbs |
 | **Timeline** | Day-grouped diary of every catch and note, searchable |
@@ -88,14 +88,18 @@ Catches are stored in a single local JSON file:
 - **Linux**: `~/.config/verb-em-all/verb-data.json`
 
 Auto-detection is off by default. When you turn it on (the `○` button in the header) the app
-reads newly appended lines of your Claude Code transcripts and polls the clipboard, matches
-them against the verb list locally, and discards the text. The first time you turn it on, the
-app asks before adding the spinner-verb `claude` function to your shell profile (a block marked
-`# >>> verb-em-all >>>`, removable from the Claude indicator). With it, each interactive `claude`
-session's screen output is appended to `~/.verb-em-all/tty/<pid>.log` while monitoring is on;
-the app reads and empties it every second and deletes it (with the recorder script) when
-monitoring stops or the app quits, and open sessions pause recording until it is back. Nothing
-is sent anywhere. Fonts are
+reads newly appended lines of your Claude Code transcripts (plus the last 256 KB of those
+active in the past hour, once, when monitoring starts) and polls the clipboard, matches them
+against the verb list locally, and discards the text. The first time you turn it on, the app
+asks before adding the spinner-verb `claude` function to your shell profile (a block marked
+`# >>> verb-em-all >>>`, removable from the Claude indicator). With it, every interactive
+`claude` session runs through a relay script (`~/.verb-em-all/relay.exp`, kept while the
+function is installed). Only while monitoring is on does the relay append the session's screen
+output to `~/.verb-em-all/tty/<pid>.log`; the app reads and empties it every second and deletes
+it when monitoring stops or the app quits. Nothing is recorded while the app is closed, and
+sessions still open resume recording when it is back. Remove the function from the Claude
+indicator before deleting the app; otherwise sessions keep running through the (idle) relay.
+Nothing is sent anywhere. Fonts are
 bundled, so the app never contacts a CDN.
 
 ---

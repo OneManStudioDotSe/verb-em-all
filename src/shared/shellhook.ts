@@ -1,11 +1,12 @@
 // The block the app adds to the user's shell profile (with consent) to catch spinner verbs.
-// It runs `claude` through the app's recorder when it is installed (monitoring on) and the
-// session is interactive; otherwise it is plain `claude`, so leaving it in place is harmless.
+// Interactive `claude` sessions always run through the app's relay, which records screen
+// output only while the app is monitoring, so a session started while the app is closed is
+// caught once it opens. Without the relay (the app removed it) this is plain `claude`.
 export const SHELL_HOOK = `# >>> verb-em-all >>>
 # Added by Verb 'em all to catch Claude Code spinner verbs.
 claude() {
-  if [ -t 0 ] && [ -t 1 ] && [ -f ~/.verb-em-all/record.exp ]; then
-    expect -f ~/.verb-em-all/record.exp claude "$@"
+  if [ -t 0 ] && [ -t 1 ] && [ -f ~/.verb-em-all/relay.exp ]; then
+    expect -f ~/.verb-em-all/relay.exp claude "$@"
   else
     command claude "$@"
   fi
@@ -16,6 +17,11 @@ const HOOK_BLOCK = /\n?# >>> verb-em-all >>>\n[\s\S]*?\n# <<< verb-em-all <<<\n?
 
 export function hasShellHook(profile: string): boolean {
   return profile.includes('# >>> verb-em-all >>>')
+}
+
+/** True only for this version of the block; an older one is offered as an update. */
+export function hasCurrentShellHook(profile: string): boolean {
+  return profile.includes(SHELL_HOOK)
 }
 
 /** Profile text without our block, restoring what was there before it was added. */

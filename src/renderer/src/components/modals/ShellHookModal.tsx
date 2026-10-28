@@ -37,10 +37,12 @@ export function ShellHookModal({ onEnable, onClose }: ShellHookModalProps): Reac
             </p>
             <pre className="modal-code">{SHELL_HOOK}</pre>
             <p>
-              While monitoring is on, each <code>claude</code> session's screen output goes to a
-              temporary file in <code>~/.verb-em-all</code> that the app reads and empties every
-              second. Otherwise <code>claude</code> runs as usual. You can remove it any time from
-              the <strong>claude</strong> indicator in the header.
+              Every <code>claude</code> session you start then runs through a small relay
+              (<code>expect</code>). Only while monitoring is on does it write the session's screen
+              output to a temporary file in <code>~/.verb-em-all</code>, which the app reads and
+              empties every second, so a session you started while the app was closed is caught
+              as soon as you open it. Nothing is written while the app is closed. You can remove it
+              any time from the <strong>claude</strong> indicator in the header.
             </p>
           </div>
         )}

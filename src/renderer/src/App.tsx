@@ -95,9 +95,19 @@ export default function App(): React.JSX.Element {
     })
   }, [])
 
-  // Load initial monitoring state
+  function addDetected(ids: string[]): void {
+    setDetectedIds((prev) => {
+      const incoming = ids.filter((id) => !prev.includes(id))
+      return incoming.length > 0 ? [...prev, ...incoming] : prev
+    })
+  }
+
+  // Load initial monitoring state; pick up Claude sessions that were already running
   useEffect(() => {
-    window.electronAPI.isMonitoringEnabled().then(setMonitoringEnabled)
+    window.electronAPI.isMonitoringEnabled().then((enabled) => {
+      setMonitoringEnabled(enabled)
+      if (enabled) window.electronAPI.scanRecentSessions().then(addDetected)
+    })
   }, [])
 
   // Dock visibility (macOS)
@@ -122,12 +132,7 @@ export default function App(): React.JSX.Element {
 
   // Listen for words detected by the session/clipboard watcher
   useEffect(() => {
-    window.electronAPI.onWordsDetected((ids) => {
-      setDetectedIds((prev) => {
-        const incoming = ids.filter((id) => !prev.includes(id))
-        return incoming.length > 0 ? [...prev, ...incoming] : prev
-      })
-    })
+    window.electronAPI.onWordsDetected(addDetected)
     return () => window.electronAPI.removeAllListeners('words:detected')
   }, [])
 
@@ -145,6 +150,7 @@ export default function App(): React.JSX.Element {
     const next = await window.electronAPI.setMonitoringEnabled(!monitoringEnabled)
     setMonitoringEnabled(next)
     if (!next) setDetectedIds([]) // clear panel when disabling
+    if (next) window.electronAPI.scanRecentSessions().then(addDetected)
     // Offer the spinner-verb recorder whenever monitoring is turned on without it
     if (next && isMac && claudeStatus && !claudeStatus.shellHook) setShowShellHook(true)
   }

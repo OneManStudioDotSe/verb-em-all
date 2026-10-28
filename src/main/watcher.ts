@@ -7,24 +7,31 @@ import {
 } from 'fs'
 import chokidar, { type FSWatcher } from 'chokidar'
 import { detectWords, detectSpinnerVerbs, extractTextFromJsonlLine } from './detector'
-import { hasShellHook, addShellHook, removeShellHook } from '../shared/shellhook'
+import { hasCurrentShellHook, addShellHook, removeShellHook } from '../shared/shellhook'
+import { recentTranscripts, readTail } from './transcripts'
 import type { ClaudeStatus } from '../shared/types'
 
 const CLAUDE_PROJECTS_DIR = join(homedir(), '.claude', 'projects')
 const CLIPBOARD_INTERVAL_MS = 2000
 const RECORDER_DIR = join(homedir(), '.verb-em-all')
 const RECORDER_PATH = join(RECORDER_DIR, 'record.exp')
+const RELAY_PATH = join(RECORDER_DIR, 'relay.exp')
 const TTY_DIR = join(RECORDER_DIR, 'tty')
 const TERMINAL_INTERVAL_MS = 1000
 const SHELL_PROFILES = ['.zshrc', '.bashrc'].map((f) => join(homedir(), f))
+// Sessions whose transcript changed this recently count as still running when monitoring starts
+const RECENT_SESSION_MS = 60 * 60 * 1000
+const RECENT_TAIL_BYTES = 256 * 1024
 
 // Spinner verbs are only drawn on screen, never written to transcripts. The `claude` shell
-// function (SHELL_HOOK) runs Claude Code through this expect script, which relays the
-// session through a pseudo-terminal, forwards window resizes and appends the output to
-// tty/<pid>.log while the app is monitoring. The app reads and empties those logs.
-// Every second the recorder checks for this script, which exists only while monitoring is
-// on: it stops logging when the app stops and resumes when it starts again, so sessions
-// left open across app restarts keep being caught and nothing is recorded in between.
+// function (SHELL_HOOK) always runs Claude Code through this expect script (relay.exp, kept
+// while the function is installed), which relays the session through a pseudo-terminal,
+// forwards window resizes and appends the output to tty/<pid>.log while the app is
+// monitoring. The app reads and empties those logs. Every second the relay checks for
+// record.exp, which exists only while monitoring is on: it stops logging when the app stops
+// and resumes when it starts again, so sessions started or left open while the app was
+// closed are caught once it opens, and nothing is recorded in between. record.exp holds the
+// same script so shells still using the previous function (which ran record.exp) keep working.
 const RECORDER_SCRIPT = `# Written by Verb 'em all while monitoring is on; removed when it stops.
 set dir [file join $env(HOME) .verb-em-all]
 set log [file join $dir tty "[pid].log"]
@@ -149,6 +156,36 @@ function readTerminalLogs(): void {
   }
 }
 
+/** Keep the relay in place exactly while the current shell function is installed. */
+export function refreshRelay(): void {
+  try {
+    if (isShellHookInstalled()) {
+      mkdirSync(RECORDER_DIR, { recursive: true })
+      writeFileSync(RELAY_PATH, RECORDER_SCRIPT)
+    } else {
+      rmSync(RELAY_PATH, { force: true })
+    }
+  } catch { /* reported via getClaudeStatus */ }
+}
+
+/**
+ * Verbs in Claude Code sessions active in the last hour, read from the end of their
+ * transcripts, so sessions already running when monitoring starts are caught too.
+ * Returned to the renderer directly: at launch it may not be listening for events yet.
+ */
+export function scanRecentSessions(): string[] {
+  if (!fsWatcher) return [] // monitoring is off
+  const found = new Set<string>()
+  for (const file of recentTranscripts(CLAUDE_PROJECTS_DIR, Date.now() - RECENT_SESSION_MS)) {
+    const text = readTail(file, RECENT_TAIL_BYTES).split('\n').map(extractTextFromJsonlLine).join('\n')
+    detectWords(text).forEach((id) => found.add(id))
+    // Later changes to this file are read from here on, not from the start
+    try { filePositions.set(file, statSync(file).size) } catch { /* removed meanwhile */ }
+  }
+  found.forEach((id) => alreadySent.add(id))
+  return [...found]
+}
+
 function startTerminalWatcher(): void {
   try {
     mkdirSync(TTY_DIR, { recursive: true })
@@ -216,7 +253,7 @@ function readProfile(path: string): string | null {
 }
 
 export function isShellHookInstalled(): boolean {
-  return SHELL_PROFILES.some((p) => hasShellHook(readProfile(p) ?? ''))
+  return SHELL_PROFILES.some((p) => hasCurrentShellHook(readProfile(p) ?? ''))
 }
 
 /**
@@ -234,5 +271,6 @@ export function setShellHook(enabled: boolean): boolean {
       try { writeFileSync(p, next) } catch { /* read-only profile: reported via the result */ }
     }
   }
+  refreshRelay()
   return isShellHookInstalled()
 }

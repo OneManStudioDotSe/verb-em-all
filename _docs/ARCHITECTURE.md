@@ -70,6 +70,7 @@ verb-em-all/
 │   │   ├── tray.ts           # macOS system tray (quick-catch menu)
 │   │   ├── watcher.ts        # Claude session file + clipboard monitoring
 │   │   ├── detector.ts       # Word detection regex engine
+│   │   ├── transcripts.ts    # Recently active transcripts + tail reads (startup scan)
 │   │   └── resources.ts      # resourcePath(): dev vs packaged location of runtime assets
 │   ├── preload/
 │   │   └── index.ts          # contextBridge → window.electronAPI
@@ -164,12 +165,16 @@ User clicks "Catch it!"
 ```
 Monitoring enabled (header ○ button)
   → startMonitoring(mainWindow)
+  → renderer calls 'monitor:scanRecent' (on launch if enabled, and when turned on):
+      scanRecentSessions() reads the last 256 KB of transcripts modified in the past hour,
+      returns the verb IDs directly (at launch the renderer may not be listening for events
+      yet) and moves those files' read positions to their end
   → chokidar watches ~/.claude/projects (depth 4) for .jsonl/.json changes
   → on change: readNewBytes() reads only appended bytes
       → extractTextFromJsonlLine() pulls text + thinking blocks
       → detectWords() runs one pre-compiled regex per verb (words ≥ 5 chars)
   → clipboard polled every 2 s: clipboard.readText() → detectWords()
-  → writes ~/.verb-em-all/record.exp (expect script), polls ~/.verb-em-all/tty/*.log every 1 s:
+  → writes ~/.verb-em-all/record.exp ("recording on" marker), polls ~/.verb-em-all/tty/*.log every 1 s:
       read + truncate each log → detectSpinnerVerbs() strips ANSI codes, matches "Verb…"
   → new IDs sent once per session via 'words:detected'
   → DetectionPanel shows them for quick catching (★ Catch / Catch all new for new verbs,
@@ -178,18 +183,22 @@ Monitoring enabled (header ○ button)
 
 Spinner verbs ("Whirring…") are only drawn in the terminal, never written to transcripts. The
 user opts in to a `claude` shell function (`SHELL_HOOK` in `src/shared/shellhook.ts`) that runs
-interactive sessions through `expect -f ~/.verb-em-all/record.exp claude …` when the script
-exists. Turning monitoring on without it opens `ShellHookModal`; on consent,
+interactive sessions through `expect -f ~/.verb-em-all/relay.exp claude …`. `refreshRelay()`
+writes `relay.exp` while the current function is installed (on launch and in `setShellHook()`)
+and deletes it otherwise, so the relay is in place even while the app is closed. Only the
+current block counts as installed (`hasCurrentShellHook()`): an older one is offered again and
+replaced. Turning monitoring on without it opens `ShellHookModal`; on consent,
 `monitor:setShellHook` → `setShellHook()` appends the block (between `# >>> verb-em-all >>>`
 markers) to `~/.zshrc` and `~/.bashrc` (whichever exist; `~/.zshrc` if neither), and removes
 exactly that block when turned off from `ClaudeHelpModal`. macOS only (`/usr/bin/expect`).
 The script relays the session through a pseudo-terminal, forwards window resizes (macOS
 `script` does not, which garbles the TUI) and appends the output to `tty/<pid>.log`, deleting
 it on exit. Logs are opened in append mode, so the app can truncate them mid-session.
-`stopMonitoring()` (also called on quit) deletes the script and the `tty/` folder. Each
-recorder checks every second whether the script still exists: it stops logging when it is
-gone and reopens its log when it is back, so sessions left open across app restarts keep
-being caught and nothing is recorded while the app is off.
+`stopMonitoring()` (also called on quit) deletes `record.exp` and the `tty/` folder. Each
+relay checks every second whether `record.exp` exists: it stops logging when it is gone and
+reopens its log when it is back, so sessions started or left open while the app was closed
+are caught once it opens, and nothing is recorded while it is off. `record.exp` holds the same
+script so shells still on the previous function (which ran `record.exp` directly) keep working.
 
 The header's **Claude indicator** calls `monitor:getClaudeStatus` on load and every 30 s. It
 scans `~/.claude/projects/*/` for `.jsonl` transcripts (stops at 50) and shows green when any
@@ -250,6 +259,7 @@ WordViewModel   // WordItem + isCaught, catchCount, latestCatchDate, history
 | `settings:getTheme` / `settings:setTheme` | renderer → main | `string` / `void` |
 | `settings:getHideDock` / `settings:setHideDock` | renderer → main | `boolean` (macOS: hides/shows the Dock icon) |
 | `settings:getOpenAtLogin` / `settings:setOpenAtLogin` | renderer → main | `boolean` (OS login item via `app.setLoginItemSettings`; not stored in electron-store) |
+| `monitor:scanRecent` | renderer → main | `string[]` (verb IDs from transcripts active in the last hour; empty when monitoring is off) |
 | `monitor:getClaudeStatus` | renderer → main | `ClaudeStatus` (`found`, `transcripts`, `dir`, `recording`, `shellHook`) |
 | `monitor:setShellHook` | renderer → main | `boolean` (adds/removes the `claude` function in shell profiles; returns whether it is installed) |
 | `menu:showHowToUse`, `menu:showAbout` | main → renderer | — |

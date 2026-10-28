@@ -88,9 +88,11 @@ export function ClaudeHelpModal({ status, onClose, onRecheck, onSetShellHook }: 
             </button>
             <p style={{ marginTop: 8 }}>
               It works in iTerm, Terminal and VS Code, in terminal tabs opened after it is added.
-              While monitoring is on, each <code>claude</code> session's screen output goes to a
-              temporary file in <code>~/.verb-em-all</code> that the app reads and empties every
-              second. Turning monitoring off or quitting the app deletes it and pauses recording.
+              Every <code>claude</code> session then runs through a small relay; while monitoring
+              is on, its screen output goes to a temporary file in <code>~/.verb-em-all</code> that
+              the app reads and empties every second. Turning monitoring off or quitting the app
+              deletes it and pauses recording; sessions still open resume when monitoring starts
+              again, including ones you started while the app was closed.
             </p>
             <p style={{ marginTop: 8 }}>
               {status.recording > 0

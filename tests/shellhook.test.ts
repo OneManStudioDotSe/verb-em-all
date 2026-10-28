@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { SHELL_HOOK, hasShellHook, addShellHook, removeShellHook } from '../src/shared/shellhook'
+import { SHELL_HOOK, hasShellHook, hasCurrentShellHook, addShellHook, removeShellHook } from '../src/shared/shellhook'
 
 const profile = 'export PATH="$HOME/bin:$PATH"\nalias ll="ls -l"\n'
 
@@ -23,6 +23,15 @@ describe('shell hook', () => {
   it('keeps lines the user wrote after the block', () => {
     const edited = addShellHook(profile) + 'export EDITOR=vim\n'
     expect(removeShellHook(edited)).toBe(profile + 'export EDITOR=vim\n')
+  })
+
+  it('treats an older block as installed but not current, and adding replaces it', () => {
+    const older = SHELL_HOOK.replaceAll('relay.exp', 'record.exp')
+    const profileWithOld = profile + '\n' + older + '\n'
+    expect(hasShellHook(profileWithOld)).toBe(true)
+    expect(hasCurrentShellHook(profileWithOld)).toBe(false)
+    expect(addShellHook(profileWithOld)).toBe(addShellHook(profile))
+    expect(hasCurrentShellHook(addShellHook(profileWithOld))).toBe(true)
   })
 
   it('leaves a profile without the block untouched', () => {

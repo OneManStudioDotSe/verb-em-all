@@ -167,3 +167,9 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 39**
 > commit everything
+
+**Prompt 40**
+> do both to be sure
+
+**Prompt 41**
+> commit everything and create a few tests to verify that things work as expected

@@ -4,7 +4,7 @@ import { is } from '@electron-toolkit/utils'
 import { registerIpcHandlers, applyDockVisibility } from './ipc'
 import { buildAppMenu } from './menu'
 import { createTray } from './tray'
-import { startMonitoring, stopMonitoring } from './watcher'
+import { startMonitoring, stopMonitoring, refreshRelay } from './watcher'
 import { store } from './store'
 import { resourcePath } from './resources'
 
@@ -69,6 +69,8 @@ app.whenReady().then(() => {
   }
 
   applyDockVisibility(store.get('hideDock'))
+  // Rewrites the spinner-verb relay so it matches this app version (or removes a stray one)
+  refreshRelay()
 
   const mainWindow = createWindow()
   registerIpcHandlers(mainWindow)

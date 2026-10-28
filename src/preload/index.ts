@@ -40,6 +40,7 @@ const electronAPI = {
     ipcRenderer.on('words:detected', (_event, ids) => callback(ids))
   },
   getClaudeStatus: (): Promise<ClaudeStatus> => ipcRenderer.invoke('monitor:getClaudeStatus'),
+  scanRecentSessions: (): Promise<string[]> => ipcRenderer.invoke('monitor:scanRecent'),
   setShellHook: (enabled: boolean): Promise<boolean> =>
     ipcRenderer.invoke('monitor:setShellHook', enabled),
 
