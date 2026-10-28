@@ -138,7 +138,7 @@ Add these repository secrets and the same workflow produces a notarized build:
 | `APPLE_TEAM_ID` | 10-character team ID |
 
 Without them the workflow sets `CSC_IDENTITY_AUTO_DISCOVERY=false` and ships an unsigned DMG;
-say so in the release notes so users know to right-click → Open (the README explains it).
+say so in the release notes so users know to approve it under Privacy & Security → Open Anyway (the README explains it).
 
 ---
 

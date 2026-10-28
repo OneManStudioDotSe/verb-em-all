@@ -173,3 +173,21 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 41**
 > commit everything and create a few tests to verify that things work as expected
+
+**Prompt 42**
+> continue where you left off before getting interupted
+
+**Prompt 43**
+> How can I do "2. Notarization. This needs the Developer ID certificate from Apple, which only you can request."?
+
+**Prompt 44**
+> do I need to have this notarized thing?
+
+**Prompt 45**
+> can you make the README of the project at Github a bit more minimal, colourful and indicative of what the app does? Add more screenshots, simplify the "walls" of text and remove information about builds that we haven't event tested building, such as Windows or Linux. Also, make the language a bit more self-ironic and playful
+
+**Prompt 46**
+> also, add screenshots of the app at the README as well
+
+**Prompt 47**
+> commit everything and push everything

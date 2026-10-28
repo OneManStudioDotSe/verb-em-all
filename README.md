@@ -1,127 +1,116 @@
-# Verb 'em All
+<div align="center">
 
-> Gotta catch 'em all — but for words.
+# verb 'em all
 
-A Pokémon-style desktop app for collecting unusual verbs you meet while coding. Browse 193
-hand-picked verbs, catch them with a note, and watch your Verbagotchi creature grow. Optional
-auto-detection reads your Claude Code session transcripts, clipboard and (with one click to add
-a shell function) the spinner verbs Claude Code shows in your terminal, so verbs find you.
-Everything stays on your machine: no account, no network, no telemetry.
+**Gotta catch 'em all, but for words.**
+A desktop pet that feeds on the weird verbs Claude Code mutters while it works.
 
----
+![macOS](https://img.shields.io/badge/macOS-Apple_Silicon_%7C_Intel-f5e642?style=flat-square&labelColor=111111)
+![193 verbs](https://img.shields.io/badge/verbs_to_catch-193-00f5d4?style=flat-square&labelColor=111111)
+![network calls](https://img.shields.io/badge/network_calls-0-42f587?style=flat-square&labelColor=111111)
+![telemetry](https://img.shields.io/badge/telemetry-lol_no-f542d4?style=flat-square&labelColor=111111)
+![license](https://img.shields.io/badge/license-Apache_2.0-f5a742?style=flat-square&labelColor=111111)
 
-## Download
+<img src="_docs/screenshots/01-chase-list-detected.png" alt="The Chase List with verbs spotted in Claude Code" width="100%">
 
-**macOS (Apple Silicon and Intel):** grab the latest DMG from the
-[Releases page](https://github.com/OneManStudioDotSe/verb-em-all/releases), open it and drag
-*Verb 'em all* to Applications.
+</div>
 
-If the build is not notarized (releases list whether it is), macOS will say the app "cannot be
-verified" on first launch. Right-click the app, choose **Open**, then **Open** again; or run:
+You ask Claude Code to fix a typo and it spends eight seconds *Flibbertigibbeting*. Then
+*Discombobulating*. Then *Razzle-dazzling*. This app exists because someone thought that
+deserved a Pokédex, and nobody stopped them.
+
+## 🎮 How it works
+
+1. **🔍 Chase.** Browse 193 hand-picked, slightly unhinged verbs.
+2. **⚡ Catch.** Met one in the wild? Catch it, add a note about where. Confetti happens.
+3. **🤖 Or let it catch itself.** Turn on monitoring and verbs from your Claude Code sessions
+   (spinner included) pop up for one-click catching.
+4. **🐣 Feed the Verbagotchi.** An ASCII creature lives on your catches. Ignore it for a week
+   and it runs away with one of your verbs. It's not mad, just disappointed.
+
+## 📸 The tour
+
+<table>
+  <tr>
+    <td width="50%"><img src="_docs/screenshots/09-celebration.png" alt="Catch celebration"><br><b>Every catch gets confetti.</b> Sorry, it's not optional.</td>
+    <td width="50%"><img src="_docs/screenshots/08-catch-modal.png" alt="Catch modal with a note"><br><b>Leave a note</b> so future you remembers where it came from.</td>
+  </tr>
+  <tr>
+    <td><img src="_docs/screenshots/03-cosmos.png" alt="Cosmos star map"><br><b>Cosmos:</b> every verb is a star. Caught ones shine. Yes, they make sounds.</td>
+    <td><img src="_docs/screenshots/04-cosmos-zoomed.png" alt="Cosmos zoomed in"><br><b>Zoom in</b> and the creature is out there, roaming between your catches.</td>
+  </tr>
+  <tr>
+    <td><img src="_docs/screenshots/02-caught.png" alt="Caught collection"><br><b>Your collection</b>, sorted by how often a verb keeps showing up.</td>
+    <td><img src="_docs/screenshots/05-timeline-claude-theme.png" alt="Timeline in the Claude theme"><br><b>Timeline:</b> a diary of every catch. Here in the warm Claude theme.</td>
+  </tr>
+  <tr>
+    <td><img src="_docs/screenshots/06-statistics.png" alt="Statistics"><br><b>Statistics</b> to prove this is a productive use of your time.</td>
+    <td><img src="_docs/screenshots/07-share-card.png" alt="Share card"><br><b>Share card:</b> a PNG for LinkedIn, so everyone knows.</td>
+  </tr>
+  <tr>
+    <td><img src="_docs/screenshots/11-verbagotchi-critical.png" alt="Verbagotchi in critical condition"><br><b>Neglect it</b> and the Verbagotchi turns red. Then it leaves.</td>
+    <td><img src="_docs/screenshots/10-accent-colors.png" alt="Accent colour picker"><br><b>Ten accent colours</b>, because neo-brutalism still deserves options.</td>
+  </tr>
+</table>
+
+## ✨ Also in the box
+
+- 🌌 **7 constellations:** the Movers, Thinkers, Makers, Builders, Speakers, Connectors and Alchemists
+- 🐣 **4 evolutions:** Hatchling → Verblet → Verbion → Verbzilla
+- 🎵 **Procedural sound:** every verb has its own little catch spell. No audio files were harmed
+- 🍔 **Menu bar mode:** quick-catch from the tray, or hide the Dock icon and live up there
+- 🚀 **Open at login**, so you never miss a *Moseying*
+- 🎨 **Two themes:** dark neo-brutal and warm Claude
+
+## 📦 Install
+
+Grab the DMG from [Releases](https://github.com/OneManStudioDotSe/verb-em-all/releases) and
+drag the app to Applications.
+
+> **"Cannot be verified"?** The build isn't notarized (Apple wants $99 a year for that). Click
+> **Done**, then go to **System Settings → Privacy & Security → Open Anyway**. Or, in Terminal:
+> `xattr -dr com.apple.quarantine "/Applications/Verb 'em all.app"`
+
+Or build it yourself:
 
 ```bash
-xattr -dr com.apple.quarantine "/Applications/Verb 'em all.app"
-```
-
-**Windows:** no prebuilt installer yet. Build one yourself with `npm run package:win` (see
-[_docs/RUNNING.md](_docs/RUNNING.md)). The tray quick-catch menu is macOS-only; everything
-else works on Windows.
-
-**From source:**
-
-```bash
-git clone https://github.com/OneManStudioDotSe/verb-em-all.git
-cd verb-em-all
+git clone https://github.com/OneManStudioDotSe/verb-em-all.git && cd verb-em-all
 npm install
-npm run dev          # run it
-npm run package:mac  # or build your own DMG into dist-release/
+npm run dev
 ```
 
----
+## 🔒 Privacy, briefly
 
-## What it does
+Everything stays on your Mac, in one JSON file. No account, no server, no analytics, not even a
+web font. Monitoring is **off** until you turn it on, and the text it reads is matched against
+the verb list and thrown away.
 
-### Core loop
+<details>
+<summary><b>The long version</b>, for the appropriately paranoid</summary>
 
-1. **Chase** — browse or live-search the Chase List of verbs still out there.
-2. **Catch** — mark a verb as caught, optionally with a note about where you found it.
-3. **Collect** — the Caught tab tracks every verb and how many times you have met it.
-4. **Feed the creature** — the Verbagotchi hatches, evolves and escapes if you neglect it.
+- **Data:** `~/Library/Application Support/verb-em-all/verb-data.json`.
+- **Transcripts:** with monitoring on, the app reads new lines in `~/.claude/projects/**/*.jsonl`.
+  When monitoring starts it also reads the last 256 KB of transcripts active in the past hour,
+  so sessions already running count.
+- **Clipboard:** checked every 2 seconds while monitoring is on.
+- **Spinner verbs:** Claude Code never writes these to transcripts. So, after asking you
+  first, the app adds a small `claude` function to `~/.zshrc` and `~/.bashrc` (marked
+  `# >>> verb-em-all >>>`). It runs terminal sessions through an `expect` relay
+  (`~/.verb-em-all/relay.exp`).
+- **What the relay records:** only while the app is monitoring, it writes the screen output to
+  `~/.verb-em-all/tty/`. The app reads that file every second, empties it, and deletes it when
+  monitoring stops. Nothing is recorded while the app is closed.
+- **Removing it:** click the **Claude** indicator in the header to remove the function. Do this
+  before deleting the app.
 
-### Features
+</details>
 
-| Feature | Description |
-|---|---|
-| **193-verb list** | Hand-curated verbs with emoji, one-line definition and category |
-| **Catch & release** | Catch with an optional note; every catch is kept in a per-verb history. Release a verb from the Caught tab |
-| **Live search & sort** | Filter by name, definition or category; sort by title, category or catch count |
-| **Celebration** | Full-screen confetti on every catch |
-| **Auto-detection** | Watches `~/.claude/projects/**/*.jsonl` and the clipboard (every 2 s) for matching verbs. When monitoring starts it also reads the end of transcripts active in the last hour, so sessions already running are caught |
-| **Spinner verbs** | Catches the verbs Claude Code shows while it works ("Discombobulating…") in iTerm, Terminal or VS Code. They are never written to transcripts, so with your consent the app adds a `claude` function to `~/.zshrc` (and `~/.bashrc`) that runs sessions through a small `expect` relay, which records only while the app is monitoring. Sessions started while the app was closed are caught as soon as it opens. Remove it with one click from the Claude indicator |
-| **Detection panel** | Spotted verbs appear above the list for one-click catching, catch-all or dismiss. Verbs you already have get an outlined **↻ Again** button and their own **Catch all again**. While monitoring is off, a dismissible hint in its place explains how to turn it on; while it is on and nothing is spotted yet, a line confirms it is listening |
-| **Verbagotchi** | ASCII creature with four evolution stages. Health drains over seven days without a catch; after 24 h in critical condition it escapes with one of your verbs |
-| **Timeline** | Day-grouped diary of every catch and note, searchable |
-| **Cosmos** | Zoomable, draggable star map of all verbs grouped into named constellations by category; caught verbs shine and the creature roams between them |
-| **Statistics** | 70-day activity heatmap, category breakdown, day-of-week and hour bars, top catches, recent activity |
-| **Share card** | Downloadable 800×440 PNG snapshot of your progress, rendered on a canvas |
-| **Sound** | Optional procedural audio (Web Audio, no sound files): a hover tone and a catch "spell" unique to each verb, plus per-category ambient drones in Cosmos |
-| **Accent colour** | 10-colour neo-brutal palette, persisted |
-| **Themes** | Default dark neo-brutal theme and a warm "Claude" theme |
-| **Claude indicator** | Header pill shows whether Claude Code transcripts are visible on this machine; click it for setup help |
-| **macOS tray** | Quick-catch menu for uncaught verbs without opening the window; closing the window hides it to the tray |
-| **Menu bar only** | Optional: hide the Dock icon and live in the menu bar (≡ menu → Menu Bar Only) |
-| **Open at login** | Optional: start the app when you log in (≡ menu → Open at Login). Uses the system login-items list, so it also shows in System Settings → General → Login Items |
+## 🛠 Built with
 
-### Verb categories
+Electron, React, TypeScript and an unreasonable amount of `box-shadow`. The internals are in
+[ARCHITECTURE](_docs/ARCHITECTURE.md), the build and release steps in [RUNNING](_docs/RUNNING.md),
+and the backlog of bad ideas in [IDEAS](_docs/IDEAS.md).
 
-`motion`, `cognition`, `creation`, `technical`, `social`, `cooking`, `speech`. Each category has
-its own constellation in Cosmos and its own musical scale in the sound engine.
+## 📄 License
 
----
-
-## Privacy
-
-Catches are stored in a single local JSON file:
-
-- **macOS**: `~/Library/Application Support/verb-em-all/verb-data.json`
-- **Windows**: `%APPDATA%\verb-em-all\verb-data.json`
-- **Linux**: `~/.config/verb-em-all/verb-data.json`
-
-Auto-detection is off by default. When you turn it on (the `○` button in the header) the app
-reads newly appended lines of your Claude Code transcripts (plus the last 256 KB of those
-active in the past hour, once, when monitoring starts) and polls the clipboard, matches them
-against the verb list locally, and discards the text. The first time you turn it on, the app
-asks before adding the spinner-verb `claude` function to your shell profile (a block marked
-`# >>> verb-em-all >>>`, removable from the Claude indicator). With it, every interactive
-`claude` session runs through a relay script (`~/.verb-em-all/relay.exp`, kept while the
-function is installed). Only while monitoring is on does the relay append the session's screen
-output to `~/.verb-em-all/tty/<pid>.log`; the app reads and empties it every second and deletes
-it when monitoring stops or the app quits. Nothing is recorded while the app is closed, and
-sessions still open resume recording when it is back. Remove the function from the Claude
-indicator before deleting the app; otherwise sessions keep running through the (idle) relay.
-Nothing is sent anywhere. Fonts are
-bundled, so the app never contacts a CDN.
-
----
-
-## Tech stack
-
-| Layer | Technology |
-|---|---|
-| Desktop shell | Electron 45 |
-| Build tool | electron-vite 5 |
-| UI | React 19 + TypeScript 6 |
-| Storage | electron-store v8 (atomic JSON) |
-| Packaging | electron-builder 26, GitHub Actions release workflow |
-
-Design: **neo-brutal** — dark background, bright accents, thick borders, offset shadows, no
-border radius. Fonts: Space Grotesk and JetBrains Mono, bundled.
-
-More in [_docs/ARCHITECTURE.md](_docs/ARCHITECTURE.md), [_docs/RUNNING.md](_docs/RUNNING.md)
-and the ideas backlog in [_docs/IDEAS.md](_docs/IDEAS.md).
-
----
-
-## License
-
-Apache License 2.0. See [LICENSE](LICENSE). Bundled fonts are under the SIL Open Font License.
+Apache 2.0, see [LICENSE](LICENSE). The bundled fonts are under the SIL Open Font License.
