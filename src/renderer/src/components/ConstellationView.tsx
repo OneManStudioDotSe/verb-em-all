@@ -27,6 +27,14 @@ const CREATURE_PATH =
   'M 140,135 C 300,55 430,65 500,95 C 610,130 760,100 860,135 ' +
   'C 952,198 964,310 900,350 C 840,470 700,590 500,578 ' +
   'C 300,590 160,470 100,350 C 122,274 128,203 140,135 Z'
+const CREATURE_LOOP_MS = 90_000
+const CREATURE_STEPS = 900
+// Caught stars twinkle in a few shared phases, each phase one glow layer over the static SVG
+const TWINKLE_MS = 3000
+const TWINKLE_PHASES = 4
+// Creature and twinkle are stepped by a timer, not continuous animations: any running
+// animation makes Chromium render a frame on every display refresh (~60% of a core here)
+const TICK_MS = 100
 
 function makeRng(seed: string): () => number {
   let h = 5381
@@ -47,8 +55,7 @@ interface StarData {
   x: number
   y: number
   category: string
-  twinkleDuration: number
-  twinkleDelay: number
+  phase: number
 }
 
 interface EdgeData {
@@ -73,6 +80,11 @@ export function ConstellationView({ words, onCatch, onHover, setAmbientCategory 
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isGrabbing, setIsGrabbing] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const creaturePathRef = useRef<SVGPathElement>(null)
+  const creatureRef = useRef<HTMLDivElement>(null)
+  const twinkleRefs = useRef<(HTMLDivElement | null)[]>([])
+  // Where the SVG's "xMidYMid meet" puts the viewBox inside the container
+  const [fit, setFit] = useState({ x: 0, y: 0, s: 1 })
   const isDragging = useRef(false)
   const hasDragged = useRef(false)
   const dragStart = useRef({ mx: 0, my: 0, px: 0, py: 0 })
@@ -93,8 +105,7 @@ export function ConstellationView({ words, onCatch, onHover, setAmbientCategory 
           x: zone.cx + Math.cos(angle) * dist,
           y: zone.cy + Math.sin(angle) * dist,
           category: word.category,
-          twinkleDuration: 1.5 + twRng() * 2.5,
-          twinkleDelay: twRng() * 5,
+          phase: Math.floor(twRng() * TWINKLE_PHASES),
         },
       ]
     })
@@ -142,6 +153,54 @@ export function ConstellationView({ words, onCatch, onHover, setAmbientCategory 
       r: rng() * 0.85 + 0.15,
       opacity: rng() * 0.22 + 0.04,
     }))
+  }, [])
+
+  // Track the meet-fit so the creature layer lines up with the SVG
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect
+      const s = Math.min(width / VW, height / VH)
+      setFit({ x: (width - VW * s) / 2, y: (height - VH * s) / 2, s })
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  // Step the creature along its path and the twinkle phases; only while the window is focused
+  useEffect(() => {
+    const path = creaturePathRef.current
+    const creature = creatureRef.current
+    if (!path || !creature) return
+    const length = path.getTotalLength()
+    // Even spacing along the path keeps the speed constant
+    const points = Array.from({ length: CREATURE_STEPS }, (_, i) =>
+      path.getPointAtLength((length * i) / CREATURE_STEPS)
+    )
+    const start = performance.now()
+    function tick(): void {
+      const t = performance.now() - start
+      const p = points[Math.floor(((t / CREATURE_LOOP_MS) % 1) * CREATURE_STEPS)]
+      creature!.style.transform = `translate(${p.x}px, ${p.y}px)`
+      twinkleRefs.current.forEach((layer, k) => {
+        if (layer) layer.style.opacity = (0.35 + 0.35 * Math.cos(2 * Math.PI * (t / TWINKLE_MS + k / TWINKLE_PHASES))).toFixed(2)
+      })
+    }
+    let timer: ReturnType<typeof setInterval> | undefined
+    function run(): void {
+      clearInterval(timer)
+      if (document.hasFocus()) timer = setInterval(tick, TICK_MS)
+    }
+    tick()
+    run()
+    window.addEventListener('focus', run)
+    window.addEventListener('blur', run)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener('focus', run)
+      window.removeEventListener('blur', run)
+    }
   }, [])
 
   // Drive category ambient from whichever constellation zone is hovered
@@ -301,19 +360,8 @@ export function ConstellationView({ words, onCatch, onHover, setAmbientCategory 
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          <filter id="csf-creature-glow" x="-200%" y="-200%" width="500%" height="500%">
-            <feGaussianBlur stdDeviation="6" result="blur" />
-            <feColorMatrix
-              in="blur"
-              type="matrix"
-              values="0 1 1 0 0  0 1 1 0 0  0 1 1 0 0  0 0 0 2 0"
-              result="coloredBlur"
-            />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          {/* Never drawn; only measured to build the creature's keyframes */}
+          <path ref={creaturePathRef} d={CREATURE_PATH} />
         </defs>
 
         {/* Decorative field stars */}
@@ -382,12 +430,7 @@ export function ConstellationView({ words, onCatch, onHover, setAmbientCategory 
                 fill={caught ? color : '#c0c0c0'}
                 opacity={caught ? (isHov ? 1 : 0.9) : isHov ? 0.75 : 0.28}
                 filter={caught ? 'url(#csf-star-glow)' : undefined}
-                style={{
-                  cursor: 'pointer',
-                  animation: caught
-                    ? `star-twinkle ${star.twinkleDuration}s ${star.twinkleDelay}s ease-in-out infinite`
-                    : undefined,
-                }}
+                style={{ cursor: 'pointer' }}
                 onMouseEnter={() => { setHovered(star); onHover?.(star.word) }}
                 onMouseLeave={() => setHovered(null)}
                 onClick={() => { if (!hasDragged.current) onCatch(star.word) }}
@@ -396,23 +439,32 @@ export function ConstellationView({ words, onCatch, onHover, setAmbientCategory 
           )
         })}
 
-        {/* Wandering Verbagotchi creature — animateMotion is a child of the animated element */}
-        <g filter="url(#csf-creature-glow)" style={{ pointerEvents: 'none', userSelect: 'none' }}>
-          <text
-            fontSize="13"
-            fill="#00f5d4"
-            opacity="0.9"
-            fontFamily="'JetBrains Mono', monospace"
-            textAnchor="middle"
-            dominantBaseline="middle"
-          >
-            ◈
-            {/* animateMotion as child of the text element it animates */}
-          </text>
-          {/* The <g> itself carries the motion — translate the whole group */}
-          <animateMotion dur="90s" repeatCount="indefinite" path={CREATURE_PATH} rotate="0" />
-        </g>
       </svg>
+
+      {/* Twinkle glows and the wandering creature live outside the SVG on layers mapped to
+          viewBox units: changing their opacity/transform only recomposites, while changing
+          anything inside the SVG re-rasterises all of it (blur filters included). */}
+      <div
+        className="constellation-creature-layer"
+        style={{
+          width: VW,
+          height: VH,
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom}) translate(${fit.x}px, ${fit.y}px) scale(${fit.s})`,
+        }}
+      >
+        {Array.from({ length: TWINKLE_PHASES }, (_, k) => (
+          <div key={k} className="constellation-twinkle" ref={(el) => { twinkleRefs.current[k] = el }}>
+            {stars
+              .filter((star) => star.word.isCaught && star.phase === k)
+              .map((star) => (
+                <span key={star.id} style={{ left: star.x, top: star.y, color: ZONES[star.category]?.color }} />
+              ))}
+          </div>
+        ))}
+        <div className="constellation-creature" ref={creatureRef}>
+          <span>◈</span>
+        </div>
+      </div>
 
       {/* Control pad */}
       <div className="constellation-controls" onMouseDown={stopPropDown}>

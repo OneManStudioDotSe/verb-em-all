@@ -98,7 +98,7 @@ verb-em-all/
 │               ├── CatchCounter.tsx
 │               ├── CatchModal.tsx        # Catch dialog with note input
 │               ├── CelebrationOverlay.tsx
-│               ├── ConstellationView.tsx # "Cosmos" tab: SVG star map, pan/zoom, creature path
+│               ├── ConstellationView.tsx # "Cosmos" tab: static SVG star map, pan/zoom, twinkle + creature overlay
 │               ├── DetectionPanel.tsx    # Auto-detected verbs
 │               ├── MonitorHint.tsx       # How to turn on monitoring, or "listening" while nothing is spotted
 │               ├── EscapeOverlay.tsx     # Verbagotchi escape screen
@@ -309,3 +309,21 @@ Neo-brutal aesthetic defined entirely in `global.css` via CSS custom properties:
 The `[data-theme="claude"]` block re-defines background, border, accent and text tokens for the
 warm Claude theme. Fonts: `--font-display` (Space Grotesk) and `--font-mono` (JetBrains Mono),
 loaded via `@font-face` from the bundled files.
+
+### Animation and CPU
+
+While any animation runs, Chromium renders a frame on every display refresh (120 Hz on
+ProMotion screens), and a changed pixel inside an SVG re-rasterises the whole SVG, blur
+filters included. A blinking dot alone cost ~15% of a core; Cosmos idled at ~65%. Rules:
+
+- No looping CSS animation in a resting state. Loops are reserved for alarms (critical
+  Verbagotchi, detection-panel pulse), and `:root[data-focused='false']` pauses every
+  animation while the window is in the background (`App.tsx` sets the attribute).
+- Cosmos draws a static SVG. The twinkle glows (four phase layers) and the roaming creature
+  live in an HTML overlay mapped to viewBox units, stepped by one 10 Hz timer that stops when
+  the window loses focus. Changing their opacity/transform only recomposites.
+- No `will-change: transform` on anything that gets zoomed: it freezes the raster at the
+  starting scale, so zooming in looks blurry.
+
+Measured with `ps` CPU time across all app processes, idle, focused: Chase List ~2% of a
+core, Cosmos ~8%; Cosmos in the background ~2%.

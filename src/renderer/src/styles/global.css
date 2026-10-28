@@ -66,6 +66,14 @@ html, body, #root {
   overflow: hidden;
 }
 
+/* Any running animation makes Chromium render every frame, so loops (pulses, shakes) stop
+   while the app sits in the background next to your editor */
+:root[data-focused='false'] *,
+:root[data-focused='false'] *::before,
+:root[data-focused='false'] *::after {
+  animation-play-state: paused !important;
+}
+
 body {
   font-family: var(--font-display);
   background: var(--bg);
@@ -178,7 +186,7 @@ body {
 }
 
 .app-right-col {
-  width: 230px;
+  width: 340px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -1139,12 +1147,6 @@ body {
 
 .claude-indicator.missing .claude-indicator-dot {
   background: #ff4444;
-  animation: claude-dot-blink 1.6s ease-in-out infinite;
-}
-
-@keyframes claude-dot-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
 }
 
 /* ─── SOUND TOGGLE ─────────────────────────────────────────────────────────── */
@@ -1219,6 +1221,11 @@ body {
 .monitor-hint.listening {
   border-style: solid;
   border-color: var(--border-dim);
+}
+
+/* A permanent pulse would keep the app rendering every frame while monitoring is on */
+.monitor-hint .detection-pulse::after {
+  content: none;
 }
 
 .monitor-hint-text {
@@ -1514,9 +1521,10 @@ body {
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-muted);
-  width: 38px;
+  width: 54px;
   flex-shrink: 0;
   text-align: right;
+  white-space: nowrap;
 }
 
 .timeline-dot {
@@ -2088,12 +2096,26 @@ body {
   flex-shrink: 0;
 }
 
-/* Expanded panel */
+/* Expanded panel: art on the left, details on the right, so it is no taller than
+   search + tabs and leaves no gap above the content */
 .verbagotchi-expanded {
-  padding: 12px 16px 14px;
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 6px;
+}
+
+.verbagotchi-info {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 7px;
+  min-width: 0;
+}
+
+.verbagotchi-warning {
+  grid-column: 1 / -1;
 }
 
 .verbagotchi-top-row {
@@ -2101,6 +2123,10 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.verbagotchi-top-row .verbagotchi-state-label {
+  margin-left: auto;
 }
 
 .verbagotchi-level-badge {
@@ -2122,13 +2148,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   white-space: nowrap;
-}
-
-/* Expanded panel: the state sits centred under the creature */
-.verbagotchi-expanded > .verbagotchi-state-label {
-  font-size: 11px;
-  text-align: center;
-  letter-spacing: 0.14em;
 }
 
 .verbagotchi-state--thriving { color: var(--accent-c); }
@@ -2158,7 +2177,6 @@ body {
 .verbagotchi-stage {
   display: flex;
   justify-content: center;
-  padding: 2px 0 0;
 }
 
 .verbagotchi-ascii {
@@ -2373,11 +2391,6 @@ body {
 /* =============================================
    CONSTELLATION VIEW
    ============================================= */
-@keyframes star-twinkle {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.45; }
-}
-
 .tab-btn.active.constellation {
   background: var(--accent-g);
   border-color: var(--accent-g);
@@ -2403,9 +2416,8 @@ body {
 
 .constellation-hint {
   position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 12px;
+  left: 14px;
   font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 700;
@@ -2417,6 +2429,49 @@ body {
   user-select: none;
   transition: opacity 0.4s ease;
   white-space: nowrap;
+}
+
+/* Sized in viewBox units and scaled into place by ConstellationView */
+.constellation-creature-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.constellation-twinkle {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.constellation-twinkle span {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  background: radial-gradient(circle, currentColor 0%, transparent 70%);
+}
+
+.constellation-creature {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.constellation-creature span {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1;
+  color: #00f5d4;
+  opacity: 0.9;
+  text-shadow: 0 0 6px #00f5d4, 0 0 12px rgba(0, 245, 212, 0.6);
 }
 
 .constellation-controls {

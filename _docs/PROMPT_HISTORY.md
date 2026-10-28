@@ -156,3 +156,14 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 36**
 > commit everything
+
+**Prompt 37**
+> that 20% cpu usage is horrible so please fix it. 
+> Regarding the notarized thingy, what is the easiest and fastest solution that we can do?
+> Also, fix the layout issue
+
+**Prompt 38**
+> can we make it possible to detect on-going claude sessions when we open the app?
+
+**Prompt 39**
+> commit everything

@@ -65,6 +65,20 @@ export default function App(): React.JSX.Element {
     document.documentElement.dataset.platform = window.electronAPI.platform
   }, [])
 
+  // Mark the window as backgrounded so CSS can pause looping animations (see global.css)
+  useEffect(() => {
+    const update = (): void => {
+      document.documentElement.dataset.focused = String(document.hasFocus())
+    }
+    update()
+    window.addEventListener('focus', update)
+    window.addEventListener('blur', update)
+    return () => {
+      window.removeEventListener('focus', update)
+      window.removeEventListener('blur', update)
+    }
+  }, [])
+
   // Load accent color and apply CSS variables
   useEffect(() => {
     window.electronAPI.getAccentColor().then((color) => {
