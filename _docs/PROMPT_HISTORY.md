@@ -206,3 +206,9 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 52**
 > commit and push everything. Let's do this!
+
+**Prompt 53**
+> I got this error from Github's CI: [electron-builder log ending in "not a file"] How can we remedy this?
+
+**Prompt 54**
+> commit and push everything remaining
