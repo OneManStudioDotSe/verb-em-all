@@ -197,3 +197,12 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 49**
 > commit and push everything
+
+**Prompt 50**
+> would you say that we are ready for a release with this project?
+
+**Prompt 51**
+> ok, do the 2 tasks that you recommed
+
+**Prompt 52**
+> commit and push everything. Let's do this!
