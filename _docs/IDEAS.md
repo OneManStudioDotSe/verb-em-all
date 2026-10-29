@@ -38,7 +38,7 @@ On each word card, a small expandable section with AI-generated etymology — wh
 Visual graph showing which verbs are semantically related. Clicking a verb highlights its "verb neighbors" in a mini-network view.
 
 ### Word Map
-2D scatter plot of all 187 verbs, clustered by semantic similarity (run k-means on pre-computed embeddings). Click a cluster to filter the main list.
+2D scatter plot of all 193 verbs, clustered by semantic similarity (run k-means on pre-computed embeddings). Click a cluster to filter the main list.
 
 ---
 

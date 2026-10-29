@@ -191,3 +191,9 @@ sessions that shipped the Cosmos constellation map, the sound engine and the Cla
 
 **Prompt 47**
 > commit everything and push everything
+
+**Prompt 48**
+> Update the documentation inside the _docs folder to reflect the latest state of the project
+
+**Prompt 49**
+> commit and push everything

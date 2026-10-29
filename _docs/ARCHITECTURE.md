@@ -113,6 +113,7 @@ verb-em-all/
 │               ├── WordList.tsx          # Responsive grid
 │               └── modals/
 │                   ├── AboutModal.tsx
+│                   ├── ClaudeHelpModal.tsx   # Claude Code setup help + shell function on/off
 │                   ├── ColorPickerModal.tsx
 │                   ├── HowToUseModal.tsx
 │                   ├── ShareCardModal.tsx    # Canvas-rendered PNG
@@ -123,8 +124,9 @@ verb-em-all/
 │   ├── icon.ico                  # Windows icon (16–256 px)
 │   ├── tray-icon.png             # Monochrome template image for the macOS tray
 │   └── entitlements.mac.plist    # Hardened-runtime entitlements for signing
-├── _docs/                        # ARCHITECTURE, RUNNING, IDEAS, PROMPT_HISTORY
-├── .github/workflows/            # ci.yml (typecheck+build), release.yml (DMG on tag)
+├── tests/                        # vitest: detector, transcripts, recorder, shellhook, words, palette, sortWords
+├── _docs/                        # ARCHITECTURE, RUNNING, IDEAS, PROMPT_HISTORY, screenshots/ (README tour)
+├── .github/workflows/            # ci.yml (typecheck+test+build), release.yml (DMG on tag)
 ├── CLAUDE.md
 ├── electron.vite.config.ts
 ├── electron-builder.yml
@@ -137,13 +139,15 @@ verb-em-all/
 
 ### Startup
 
-1. Main process launches, creates the `BrowserWindow`.
-2. `registerIpcHandlers()` sets up all channels.
+1. Main process launches. `applyDockVisibility()` hides the Dock icon if `hideDock` is set and
+   `refreshRelay()` rewrites or removes the spinner-verb relay script.
+2. The `BrowserWindow` is created; `registerIpcHandlers()` sets up all channels.
 3. `buildAppMenu()` creates the native menu; `createTray()` sets up the macOS tray.
 4. If monitoring was enabled in the last session, `startMonitoring()` resumes.
 5. Renderer loads, React mounts `<App />`.
 6. `useStorage` fetches the full `caught` map; `App` loads accent colour and theme and applies
-   them to `<html>` (CSS custom properties and `data-theme`).
+   them to `<html>` (CSS custom properties and `data-theme`), fetches the Claude status and,
+   when monitoring is on, calls `monitor:scanRecent` to pick up sessions already running.
 7. `App.tsx` derives `WordViewModel[]` by merging the static word list with storage data.
 
 ### Catching a verb

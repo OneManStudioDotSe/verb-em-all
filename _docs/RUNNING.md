@@ -40,9 +40,20 @@ npm run typecheck:web    # renderer only
 npm test                 # vitest, runs tests/*.test.ts
 ```
 
-Tests cover the pure parts: the detector (`src/main/detector.ts`), the word list's integrity
-and the accent palette. UI and main-process wiring are verified by `npm run typecheck`,
-`npm run build`, and `npm run package:mac` for anything that touches packaging.
+Tests cover the parts that run without Electron:
+
+| File | Covers |
+|---|---|
+| `tests/detector.test.ts` | Transcript text extraction, verb detection, spinner-verb detection (ANSI stripping) |
+| `tests/transcripts.test.ts` | Recent-transcript lookup and tail reads used by the startup scan |
+| `tests/recorder.test.ts` | The `expect` relay script end to end and the `claude` shell function's fallbacks (spawns a real relay; skipped when `expect` is not installed, e.g. on Linux CI) |
+| `tests/shellhook.test.ts` | Adding, detecting and removing the `claude` function in shell profiles |
+| `tests/words.test.ts` | Word list integrity: 193 entries, unique ids and words, valid categories, emoji and description on each |
+| `tests/palette.test.ts` | The 10 accent colours and their shadow pairs |
+| `tests/sortWords.test.ts` | The word-grid sort |
+
+UI and main-process wiring are verified by `npm run typecheck`, `npm run build`, and
+`npm run package:mac` for anything that touches packaging.
 
 ---
 
@@ -66,9 +77,11 @@ npm run package:mac
 Produces in `dist-release/`:
 
 ```
-Verb 'em all-1.0.0-arm64.dmg
-Verb 'em all-1.0.0-x64.dmg
+Verb 'em all-<version>-arm64.dmg
+Verb 'em all-<version>-x64.dmg
 ```
+
+`<version>` is the `version` in `package.json` (currently 1.3.0).
 
 What happens, driven by `electron-builder.yml`:
 
@@ -92,14 +105,16 @@ export APPLE_TEAM_ID="XXXXXXXXXX"
 npm run package:mac
 ```
 
-### Windows (NSIS installer)
+### Windows (NSIS installer, untested)
 
 ```bash
-npm run package:win      # → dist-release/Verb 'em all-1.0.0-x64.exe
+npm run package:win      # → dist-release/Verb 'em all-<version>-x64.exe
 ```
 
-`resources/icon.ico` is already in the repo. The installer is unsigned; Windows SmartScreen
-will warn until the project has a code-signing certificate. The tray menu is macOS-only.
+The config and `resources/icon.ico` are in place, but no Windows build has been run or tested
+yet, which is why the README only mentions macOS. The installer is unsigned; Windows
+SmartScreen will warn until the project has a code-signing certificate. The tray menu, the
+Dock toggle and the spinner-verb relay (`expect`) are macOS-only.
 
 ### Both
 
@@ -117,13 +132,13 @@ whenever a `v*` tag is pushed:
 ```bash
 # 1. bump "version" in package.json, commit
 # 2. tag and push
-git tag v1.0.0
+git tag v1.3.0
 git push origin main --tags
 ```
 
 The workflow runs typecheck and build, then `electron-builder --mac`, then creates the release
-with auto-generated notes (or uploads to it if it already exists). `ci.yml` runs typecheck and
-build on every push and pull request.
+with auto-generated notes (or uploads to it if it already exists). `ci.yml` runs typecheck,
+tests and build on every push and pull request. Both workflows use Node 22.
 
 ### Optional: signed and notarized releases
 
