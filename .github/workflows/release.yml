@@ -15,9 +15,6 @@ jobs:
   mac:
     runs-on: macos-latest
     env:
-      CSC_LINK: ${{ secrets.MAC_CERT_P12 }}
-      CSC_KEY_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
-      CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.MAC_CERT_P12 != '' }}
       APPLE_ID: ${{ secrets.APPLE_ID }}
       APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -30,6 +27,19 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run build
+      # CSC_LINK must be unset, not empty, when there is no certificate:
+      # electron-builder treats an empty CSC_LINK as a file path and fails.
+      - name: Configure code signing
+        env:
+          MAC_CERT_P12: ${{ secrets.MAC_CERT_P12 }}
+          MAC_CERT_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+        run: |
+          if [ -n "$MAC_CERT_P12" ]; then
+            echo "CSC_LINK=$MAC_CERT_P12" >> "$GITHUB_ENV"
+            echo "CSC_KEY_PASSWORD=$MAC_CERT_PASSWORD" >> "$GITHUB_ENV"
+          else
+            echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> "$GITHUB_ENV"
+          fi
       - run: npx electron-builder --mac --publish never
       - name: Attach DMGs to the GitHub Release
         env:
